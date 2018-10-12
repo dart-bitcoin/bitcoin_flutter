@@ -4,7 +4,7 @@ import '../../src/models/networks.dart';
 import 'package:bip32/src/utils/ecurve.dart' show isPoint;
 import 'package:bs58check/bs58check.dart' as bs58check;
 import '../utils/script.dart' as bscript;
-import '../utils/constants/op.dart' as OPS;
+import '../utils/constants/op.dart';
 import 'package:meta/meta.dart';
 class P2PKH {
   P2PKHData data;
@@ -25,11 +25,11 @@ class P2PKH {
       _getDataFromHash();
     } else if (data.output != null) {
       if (data.output.length != 25 ||
-          data.output[0] != OPS.OP_DUP ||
-          data.output[1] != OPS.OP_HASH160 ||
+          data.output[0] != OPS['OP_DUP'] ||
+          data.output[1] != OPS['OP_HASH160'] ||
           data.output[2] != 0x14 ||
-          data.output[23] != OPS.OP_EQUALVERIFY ||
-          data.output[24] != OPS.OP_CHECKSIG) throw new ArgumentError('Output is invalid');
+          data.output[23] != OPS['OP_EQUALVERIFY'] ||
+          data.output[24] != OPS['OP_CHECKSIG']) throw new ArgumentError('Output is invalid');
       data.hash = data.output.sublist(3, 23);
       _getDataFromHash();
     } else if (data.pubkey != null) {
@@ -37,7 +37,7 @@ class P2PKH {
       _getDataFromHash();
       _getDataFromChunk();
     } else if (data.input != null) {
-      List<Uint8List> _chunks = bscript.decompile(data.input);
+      List<dynamic> _chunks = bscript.decompile(data.input);
       _getDataFromChunk(_chunks);
       if (_chunks.length != 2) throw new ArgumentError('Input is invalid');
       if (!bscript.isCanonicalScriptSignature(_chunks[0])) throw new ArgumentError('Input has invalid signature');
@@ -47,7 +47,11 @@ class P2PKH {
     }
   }
   void _getDataFromChunk([List<dynamic> _chunks]) {
-    if (data.pubkey == null && _chunks != null) data.pubkey = (_chunks[1] is int) ? new Uint8List.fromList([_chunks[1]]) : _chunks[1];
+    if (data.pubkey == null && _chunks != null) {
+      data.pubkey = (_chunks[1] is int) ? new Uint8List.fromList([_chunks[1]]) : _chunks[1];
+      data.hash = hash160(data.pubkey);
+      _getDataFromHash();
+    }
     if (data.signature == null && _chunks != null) data.signature = (_chunks[0] is int) ? new Uint8List.fromList([_chunks[0]]) : _chunks[0];
     if (data.input == null && data.pubkey != null && data.signature != null) {
       Uint8List combine = Uint8List.fromList([data.pubkey, data.signature].expand((i) => i).toList(growable: false));
@@ -63,11 +67,11 @@ class P2PKH {
     }
     if (data.output == null) {
       data.output = bscript.compile([
-        OPS.OP_DUP,
-        OPS.OP_HASH160,
+        OPS['OP_DUP'],
+        OPS['OP_HASH160'],
         data.hash,
-        OPS.OP_EQUALVERIFY,
-        OPS.OP_CHECKSIG
+        OPS['OP_EQUALVERIFY'],
+        OPS['OP_CHECKSIG']
       ]);
     }
   }
@@ -96,5 +100,5 @@ class P2PKHData {
   Uint8List signature;
   Uint8List pubkey;
   Uint8List input;
-  P2PKHData({this.address, this.hash, this.output, this.pubkey, this.input});
+  P2PKHData({this.address, this.hash, this.output, this.pubkey, this.input, this.signature});
 }

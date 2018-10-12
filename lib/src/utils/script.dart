@@ -1,7 +1,9 @@
 import 'dart:typed_data';
-import '../utils/constants/op.dart' as OPS;
+import 'package:hex/hex.dart';
+import '../utils/constants/op.dart';
 import '../utils/push_data.dart' as pushData;
-const OP_INT_BASE = OPS.OP_RESERVED;
+Map<int, String> REVERSE_OPS = OPS.map((String string, int number) => new MapEntry(number, string));
+final OP_INT_BASE = OPS['OP_RESERVED'];
 Uint8List compile(List<dynamic> chunks) {
   final bufferSize = chunks.fold(0, (acc, chunk) {
     if (chunk is int) return acc + 1;
@@ -47,7 +49,7 @@ List<dynamic> decompile(Uint8List buffer) {
     final opcode = buffer[i];
 
     // data chunk
-    if ((opcode > OPS.OP_0) && (opcode <= OPS.OP_PUSHDATA4)) {
+    if ((opcode > OPS['OP_0']) && (opcode <= OPS['OP_PUSHDATA4'])) {
       final d = pushData.decode(buffer, i);
 
       // did reading a pushDataInt fail?
@@ -76,11 +78,36 @@ List<dynamic> decompile(Uint8List buffer) {
   }
   return chunks;
 }
+Uint8List fromASM (String asm) {
+  return compile(asm.split(' ').map((chunkStr) {
+    if (OPS[chunkStr] != null) return OPS[chunkStr];
+    return HEX.decode(chunkStr);
+  }).toList());
+}
+String toASM (List<dynamic> c) {
+  List<dynamic> chunks;
+  if (c is Uint8List) {
+    chunks = decompile(c);
+  } else {
+    chunks = c;
+  }
+  return chunks.map((chunk) {
+    // data?
+    if (chunk is Uint8List) {
+      final op = asMinimalOP(chunk);
+      if (op == null) return HEX.encode(chunk);
+      chunk = op;
+    }
+    // opcode!
+    return REVERSE_OPS[chunk];
+    }).join(' ');
+}
+
 int asMinimalOP (Uint8List buffer) {
-  if (buffer.length == 0) return OPS.OP_0;
+  if (buffer.length == 0) return OPS['OP_0'];
   if (buffer.length != 1) return null;
   if (buffer[0] >= 1 && buffer[0] <= 16) return OP_INT_BASE + buffer[0];
-  if (buffer[0] == 0x81) return OPS.OP_1NEGATE;
+  if (buffer[0] == 0x81) return OPS['OP_1NEGATE'];
   return null;
 }
 bool isDefinedHashType (hashType) {
@@ -108,10 +135,10 @@ bool bip66check (buffer) {
   if (lenS == 0) return false;
   if ((6 + lenR + lenS) != buffer.length) return false;
 
-  if (buffer[4] & 0x80) return false;
-  if (lenR > 1 && (buffer[4] == 0x00) && !(buffer[5] & 0x80)) return false;
+  if (buffer[4] & 0x80 != 0) return false;
+  if (lenR > 1 && (buffer[4] == 0x00) && buffer[5] & 0x80 == 0) return false;
 
-  if (buffer[lenR + 6] & 0x80) return false;
-  if (lenS > 1 && (buffer[lenR + 6] == 0x00) && !(buffer[lenR + 7] & 0x80)) return false;
+  if (buffer[lenR + 6] & 0x80 != 0) return false;
+  if (lenS > 1 && (buffer[lenR + 6] == 0x00) && buffer[lenR + 7] & 0x80 == 0) return false;
   return true;
 }

@@ -1,6 +1,6 @@
 name: bitcoin_flutter
-description: A starting point for Dart libraries or applications.
-version: 0.0.1
+description: A dart Bitcoin library for Flutter. BIP32, BIP39, P2PKH integration.
+version: 0.0.2
 homepage: https://github.com/anicdh
 author: andoan <anic.dh@gmail.com>
 
@@ -13,7 +13,10 @@ dependencies:
   pointycastle: ^1.0.0-rc2
   hex: ^0.1.2
   bs58check: ^1.0.1
-  meta: ^1.1.6
+  meta: ^1.1.5
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
-  test: ^1.0.0
+  flutter_test:
+    sdk: flutter

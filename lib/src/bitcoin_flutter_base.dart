@@ -2,7 +2,6 @@
 import 'dart:typed_data';
 import 'package:bip32/bip32.dart' show BIP32, fromSeed;
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:meta/meta.dart';
 import 'models/networks.dart';
 import 'package:hex/hex.dart';
 import 'payments/p2pkh.dart';

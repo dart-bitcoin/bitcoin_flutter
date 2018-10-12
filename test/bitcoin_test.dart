@@ -1,4 +1,4 @@
-import '../lib/bitcoin.dart';
+import '../lib/bitcoin_flutter.dart';
 import 'package:test/test.dart';
 
 void main() {

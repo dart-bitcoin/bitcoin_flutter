@@ -1,4 +1,4 @@
-# bitcoin-dart
+# bitcoin-flutter
 
 A dart Bitcoin library for Flutter.
 

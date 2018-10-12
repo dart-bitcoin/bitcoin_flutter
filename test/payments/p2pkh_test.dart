@@ -7,7 +7,7 @@ import 'package:hex/hex.dart';
 import 'dart:typed_data';
 main() {
   final fixtures = json.decode(new File("./test/fixtures/p2pkh.json").readAsStringSync(encoding: utf8));
-  group('valid', () {
+  group('(valid case)', () {
     (fixtures["valid"] as List<dynamic>).forEach((f) {
       test(f['description'] + ' as expected', () {
         final arguments = _preformP2PKH(f['arguments']);
@@ -33,13 +33,25 @@ main() {
       });
     });
   });
+  group('(invalid case)', () {
+    (fixtures["invalid"] as List<dynamic>).forEach((f) {
+      test('throws ' + f['exception'] + (f['description'] != null ? ('for ' + f['description']) : ''), () {
+        final arguments = _preformP2PKH(f['arguments']);
+        try {
+          expect(new P2PKH(data: arguments), isArgumentError);
+        } catch(err) {
+          expect((err as ArgumentError).message, f['exception']);
+        }
 
+      });
+    });
+  });
 }
 P2PKHData _preformP2PKH(dynamic x) {
   final address = x['address'];
   final hash = x['hash'] != null ? HEX.decode(x['hash']) : null;
   final input = x['input'] != null ? bscript.fromASM(x['input']) : null;
-  final output = x['output'] != null ? bscript.fromASM(x['output']) : null;
+  final output = x['output'] != null ? bscript.fromASM(x['output']) : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
   final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
   return new P2PKHData(address: address, hash: hash, input: input, output: output, pubkey: pubkey, signature: signature);

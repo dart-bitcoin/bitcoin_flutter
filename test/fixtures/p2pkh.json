@@ -111,7 +111,7 @@
     },
     {
       "description": "Non-minimally encoded (non BIP62 compliant)",
-      "exception": "Expected property \"output\" of type Buffer\\(Length: 25\\), got Buffer\\(Length: 26\\)",
+      "exception": "Output is invalid",
       "arguments": {
         "outputHex": "76a94c14aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac"
       }

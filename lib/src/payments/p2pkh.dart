@@ -101,4 +101,10 @@ class P2PKHData {
   Uint8List pubkey;
   Uint8List input;
   P2PKHData({this.address, this.hash, this.output, this.pubkey, this.input, this.signature});
+
+  @override
+  String toString() {
+    return 'P2PKHData{address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input}';
+  }
+
 }

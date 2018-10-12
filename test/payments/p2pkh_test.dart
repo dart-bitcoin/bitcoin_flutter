@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:hex/hex.dart';
 import 'dart:typed_data';
 main() {
-  final fixtures = json.decode(new File("./test/fixtures/p2pkh.json").readAsStringSync(encoding: utf8));
+  final fixtures = json.decode(new File("../test/fixtures/p2pkh.json").readAsStringSync(encoding: utf8));
   group('(valid case)', () {
     (fixtures["valid"] as List<dynamic>).forEach((f) {
       test(f['description'] + ' as expected', () {

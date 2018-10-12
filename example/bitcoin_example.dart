@@ -1,4 +1,4 @@
-import 'package:bitcoin_dart/bitcoin_dart.dart';
+import '../lib/bitcoin.dart';
 
 main() {
   var hdWallet = new HDWallet(passphrase: "praise you muffin lion enable neck grocery crumble super myself license ghost");

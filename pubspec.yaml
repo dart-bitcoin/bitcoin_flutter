@@ -1,4 +1,4 @@
-name: bitcoin_dart
+name: bitcoin
 description: A starting point for Dart libraries or applications.
 version: 0.0.1
 homepage: https://github.com/anicdh
@@ -13,6 +13,7 @@ dependencies:
   pointycastle: ^1.0.0-rc2
   hex: ^0.1.2
   bs58check: ^1.0.1
+  meta: ^1.1.6
 
 dev_dependencies:
   test: ^1.0.0

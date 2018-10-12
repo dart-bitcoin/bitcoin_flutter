@@ -1,4 +1,4 @@
-import '../lib/bitcoin_dart.dart';
+import '../lib/bitcoin.dart';
 import 'package:test/test.dart';
 
 void main() {

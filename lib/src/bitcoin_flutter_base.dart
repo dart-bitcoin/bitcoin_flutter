@@ -1,7 +1,6 @@
 // TODO: Put public facing types in this file.
 import 'dart:typed_data';
-import 'package:bip32/bip32.dart' show BIP32, fromSeed;
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:bip32/bip32.dart' show BIP32;
 import 'models/networks.dart';
 import 'package:hex/hex.dart';
 import 'payments/p2pkh.dart';
@@ -22,7 +21,7 @@ class HDWallet {
   HDWallet(Uint8List seed, {NetworkType network}) {
     this.network = network ?? bitcoin;
     this.seed = HEX.encode(seed);
-    this._bip32 = fromSeed(seed);
+    this._bip32 = BIP32.fromSeed(seed);
     this._p2pkh = new P2PKH(data: new P2PKHData(pubkey: this._bip32.publicKey), network: network);
   }
 

@@ -1,3 +1,5 @@
+library bitcon_flutter.networks;
+
 class NetworkType {
   String messagePrefix;
   String bech32;

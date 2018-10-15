@@ -1,4 +1,4 @@
-</a> <a href="https://pub.dartlang.org/packages/bitcoin_flutter"><img alt="pub version" src="https://img.shields.io/pub/v/bitcoin_flutter.svg?style=flat-square"></a>
+<a href="https://pub.dartlang.org/packages/bitcoin_flutter"><img alt="pub version" src="https://img.shields.io/pub/v/bitcoin_flutter.svg?style=flat-square"></a>
 
 # bitcoin_flutter
 
@@ -51,7 +51,7 @@ The below examples are implemented as integration tests:
 ### Running the test suite
 
 ``` bash
-flutter test
+dart run test
 ```
 
 ## Complementing Libraries

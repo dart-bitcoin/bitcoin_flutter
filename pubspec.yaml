@@ -1,6 +1,6 @@
 name: bitcoin_flutter
 description: A dart Bitcoin library for Flutter. BIP32, BIP39, P2PKH integration.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/anicdh
 author: andoan <anic.dh@gmail.com>
 

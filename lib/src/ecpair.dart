@@ -39,9 +39,20 @@ class ECPair {
     wif.WIF decoded = wif.decode(w);
     final version = decoded.version;
     // TODO support multi networks
-    final nw = network ?? bitcoin;
-    if (nw.wif != version) throw new ArgumentError("Invalid network version");
-    return ECPair.fromPrivateKey(decoded.privateKey, compressed: decoded.compressed, network: network);
+    NetworkType nw;
+    if (network != null) {
+      nw = network;
+      if (nw.wif != version) throw new ArgumentError("Invalid network version");
+    } else {
+      if (version == bitcoin.wif) {
+        nw = bitcoin;
+      } else if (version == testnet.wif) {
+        nw = testnet;
+      } else {
+        throw new ArgumentError("Unknown network version");
+      }
+    }
+    return ECPair.fromPrivateKey(decoded.privateKey, compressed: decoded.compressed, network: nw);
   }
   factory ECPair.fromPublicKey(Uint8List publicKey, {NetworkType network, bool compressed}) {
     if (!ecc.isPoint(publicKey)) {
@@ -51,14 +62,17 @@ class ECPair {
   }
   factory ECPair.fromPrivateKey(Uint8List privateKey, {NetworkType network, bool compressed}) {
     if (privateKey.length != 32) throw new ArgumentError("Expected property privateKey of type Buffer(Length: 32)");
-    if (!ecc.isPrivate(privateKey)) throw new ArgumentError("Private key not in range [1, n]");
+    if (!ecc.isPrivate(privateKey)) throw new ArgumentError("Private key not in range [1, n)");
     return new ECPair(privateKey, null, network: network, compressed: compressed);
   }
   factory ECPair.makeRandom({NetworkType network, bool compressed, Function rng}) {
     final rfunc = rng ?? _randomBytes;
     Uint8List d;
+//    int beginTime = DateTime.now().millisecondsSinceEpoch;
     do {
       d = rfunc(32);
+      if (d.length != 32) throw ArgumentError("Expected Buffer(Length: 32)");
+//      if (DateTime.now().millisecondsSinceEpoch - beginTime > 5000) throw ArgumentError("Timeout");
     } while (!ecc.isPrivate(d));
     return ECPair.fromPrivateKey(d, network: network, compressed: compressed);
   }

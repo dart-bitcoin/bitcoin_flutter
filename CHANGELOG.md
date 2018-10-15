@@ -13,3 +13,11 @@
 ## 0.0.4
 
 - Change from flutter SDK to dart SDK
+
+## 0.0.5
+
+- Add ECPair
+
+## 0.1.0
+
+- Integration ECPair

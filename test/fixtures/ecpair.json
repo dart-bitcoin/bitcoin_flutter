@@ -68,50 +68,27 @@
   "invalid": {
     "fromPrivateKey": [
       {
-        "exception": "Private key not in range \\[1, n\\)",
+        "exception": "Private key not in range [1, n)",
         "d": "0000000000000000000000000000000000000000000000000000000000000000"
       },
       {
-        "exception": "Private key not in range \\[1, n\\)",
+        "exception": "Private key not in range [1, n)",
         "d": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
       },
       {
-        "exception": "Private key not in range \\[1, n\\)",
+        "exception": "Private key not in range [1, n)",
         "d": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142"
-      },
-      {
-        "exception": "Expected property \"compressed\" of type \\?Boolean, got Number 2",
-        "d": "0000000000000000000000000000000000000000000000000000000000000001",
-        "options": {
-          "compressed": 2
-        }
-      },
-      {
-        "exception": "Expected property \"network.messagePrefix\" of type Buffer|String, got undefined",
-        "d": "0000000000000000000000000000000000000000000000000000000000000001",
-        "options": {
-          "network": {}
-        }
       }
     ],
     "fromPublicKey": [
       {
-        "exception": "Expected isPoint, got Buffer",
-        "Q": "",
-        "options": {}
-      },
-      {
-        "exception": "Expected property \"network.messagePrefix\" of type Buffer|String, got undefined",
-        "Q": "044289801366bcee6172b771cf5a7f13aaecd237a0b9a1ff9d769cabc2e6b70a34cec320a0565fb7caf11b1ca2f445f9b7b012dda5718b3cface369ee3a034ded6",
-        "options": {
-          "network": {}
-        }
+        "exception": "Point is not on the curve",
+        "Q": ""
       },
       {
         "description": "Bad X coordinate (== P)",
-        "exception": "Expected isPoint, got Buffer",
-        "Q": "040000000000000000000000000000000000000000000000000000000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
-        "options": {}
+        "exception": "Point is not on the curve",
+        "Q": "040000000000000000000000000000000000000000000000000000000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
       }
     ],
     "fromWIF": [

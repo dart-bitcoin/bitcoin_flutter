@@ -1,5 +1,5 @@
 library bitcon_flutter.networks;
-
+import 'package:meta/meta.dart';
 class NetworkType {
   String messagePrefix;
   String bech32;
@@ -8,15 +8,15 @@ class NetworkType {
   int scriptHash;
   int wif;
 
-  NetworkType({this.messagePrefix, this.bech32, this.bip32, this.pubKeyHash,
-      this.scriptHash, this.wif});
+  NetworkType({@required this.messagePrefix, @required this.bech32, @required this.bip32, @required this.pubKeyHash,
+    @required this.scriptHash, @required this.wif});
 
 }
 class Bip32Type {
   int public;
   int private;
 
-  Bip32Type({this.public, this.private});
+  Bip32Type({@required this.public, @required this.private});
 
 }
 final bitcoin = new NetworkType(

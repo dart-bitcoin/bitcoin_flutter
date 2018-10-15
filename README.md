@@ -35,7 +35,11 @@ main() {
 ```
 
 The below examples are implemented as integration tests:
-
+- [Generate a random address](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/addresses_test.dart#L21)
+- [Generate an address from a SHA256 hash](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/addresses_test.dart#L26)
+- [Import an address via WIF](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/addresses_test.dart#L32)
+- [Generate a Testnet address](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/addresses_test.dart#L37)
+- [Generate a Litecoin address](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/addresses_test.dart#L45)
 - [Import a BIP32 testnet xpriv and export to WIF](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L9)
 - [Export a BIP32 xpriv, then import it](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L14)
 - [Export a BIP32 xpub](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L23)

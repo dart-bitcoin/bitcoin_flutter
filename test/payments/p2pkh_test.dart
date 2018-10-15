@@ -1,12 +1,12 @@
 import 'package:bitcoin_flutter/src/payments/p2pkh.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:bitcoin_flutter/src/utils/script.dart' as bscript;
 import 'dart:io';
 import 'dart:convert';
 import 'package:hex/hex.dart';
 import 'dart:typed_data';
 main() {
-  final fixtures = json.decode(new File("../test/fixtures/p2pkh.json").readAsStringSync(encoding: utf8));
+  final fixtures = json.decode(new File("./test/fixtures/p2pkh.json").readAsStringSync(encoding: utf8));
   group('(valid case)', () {
     (fixtures["valid"] as List<dynamic>).forEach((f) {
       test(f['description'] + ' as expected', () {

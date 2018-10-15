@@ -10,7 +10,6 @@ import 'payments/p2pkh.dart';
 class HDWallet {
   BIP32 _bip32;
   P2PKH _p2pkh;
-  String passphrase;
   String seed;
   NetworkType network;
   String get privKey => _bip32 != null ? HEX.encode(_bip32.privateKey) : null;
@@ -20,13 +19,7 @@ class HDWallet {
   String get wif => _bip32 != null ? _bip32.toWIF() : null;
   String get address => _p2pkh != null ? _p2pkh.data.address : null;
 
-  HDWallet({String passphrase, NetworkType network}) {
-    if (passphrase != null) {
-      this.passphrase = passphrase;
-    } else {
-      this.passphrase = bip39.generateMnemonic();
-    }
-    Uint8List seed = bip39.mnemonicToSeed(this.passphrase);
+  HDWallet(Uint8List seed, {NetworkType network}) {
     this.network = network ?? bitcoin;
     this.seed = HEX.encode(seed);
     this._bip32 = fromSeed(seed);

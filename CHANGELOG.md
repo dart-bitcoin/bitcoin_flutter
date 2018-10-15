@@ -9,3 +9,7 @@
 ## 0.0.3
 
 - Add p2pkh test
+
+## 0.0.4
+
+- Change from flutter SDK to dart SDK

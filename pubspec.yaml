@@ -14,13 +14,10 @@ dependencies:
   hex: ^0.1.2
   bs58check: ^1.0.1
   meta: ^1.1.5
-  flutter:
-    sdk: flutter
 #  json_annotation: ^0.2.3
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  test: ^1.0.0
 #  build_runner: ^0.8.0
 #  json_serializable: ^0.5.0
 

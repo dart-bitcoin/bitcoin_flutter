@@ -27,12 +27,12 @@ EncodedPushData encode(Uint8List buffer, number, offset) {
     // 16 bit
   } else if (size == 3) {
     buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA2']);
-    buffer.buffer.asByteData().setUint16(offset + 1, number);
+    buffer.buffer.asByteData().setUint16(offset + 1, number, Endian.little);
 
     // 32 bit
   } else {
     buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA4']);
-    buffer.buffer.asByteData().setUint32(offset + 1, number);
+    buffer.buffer.asByteData().setUint32(offset + 1, number, Endian.little);
   }
 
   return new EncodedPushData(

@@ -1,9 +1,12 @@
 import 'dart:typed_data';
 import 'package:hex/hex.dart';
-import '../utils/constants/op.dart';
-import '../utils/push_data.dart' as pushData;
+import 'package:bip32/src/utils/ecurve.dart' as ecc;
+import 'constants/op.dart';
+import 'push_data.dart' as pushData;
+import 'check_types.dart';
 Map<int, String> REVERSE_OPS = OPS.map((String string, int number) => new MapEntry(number, string));
 final OP_INT_BASE = OPS['OP_RESERVED'];
+final ZERO = Uint8List.fromList([0]);
 Uint8List compile(List<dynamic> chunks) {
   final bufferSize = chunks.fold(0, (acc, chunk) {
     if (chunk is int) return acc + 1;
@@ -115,6 +118,9 @@ bool isDefinedHashType (hashType) {
   // return hashTypeMod > SIGHASH_ALL && hashTypeMod < SIGHASH_SINGLE
   return hashTypeMod > 0x00 && hashTypeMod < 0x04;
 }
+bool isCanonicalPubKey (Uint8List buffer) {
+  return ecc.isPoint(buffer);
+}
 bool isCanonicalScriptSignature (Uint8List buffer) {
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false;
   return bip66check(buffer.sublist(0, buffer.length - 1));
@@ -141,4 +147,56 @@ bool bip66check (buffer) {
   if (buffer[lenR + 6] & 0x80 != 0) return false;
   if (lenS > 1 && (buffer[lenR + 6] == 0x00) && buffer[lenR + 7] & 0x80 == 0) return false;
   return true;
+}
+
+Uint8List bip66encode(r, s) {
+  var lenR = r.length;
+  var lenS = s.length;
+  if (lenR == 0) throw new ArgumentError('R length is zero');
+  if (lenS == 0) throw new ArgumentError('S length is zero');
+  if (lenR > 33) throw new ArgumentError('R length is too long');
+  if (lenS > 33) throw new ArgumentError('S length is too long');
+  if (r[0] & 0x80 != 0) throw new ArgumentError('R value is negative');
+  if (s[0] & 0x80 != 0) throw new ArgumentError('S value is negative');
+  if (lenR > 1 && (r[0] == 0x00) && r[1] & 0x80 == 0) throw new ArgumentError('R value excessively padded');
+  if (lenS > 1 && (s[0] == 0x00) && s[1] & 0x80 == 0) throw new ArgumentError('S value excessively padded');
+
+  var signature = new Uint8List(6 + lenR + lenS);
+
+  // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
+  signature[0] = 0x30;
+  signature[1] = signature.length - 2;
+  signature[2] = 0x02;
+  signature[3] = r.length;
+  signature.setRange(4, 4 + lenR, r);
+  signature[4 + lenR] = 0x02;
+  signature[5 + lenR] = s.length;
+  signature.setRange(6 + lenR, 6 + lenR + lenS, s);
+  return signature;
+}
+
+
+Uint8List encodeSignature(Uint8List signature, int hashType) {
+  if (!isUint(hashType, 8)) throw ArgumentError("Invalid hasType $hashType");
+  if (signature.length != 64) throw ArgumentError("Invalid signature");
+  final hashTypeMod = hashType & ~0x80;
+  if (hashTypeMod <= 0 || hashTypeMod >= 4) throw new ArgumentError('Invalid hashType $hashType');
+
+  final hashTypeBuffer = new Uint8List(1);
+  hashTypeBuffer.buffer.asByteData().setUint8(0, hashType);
+  final r = toDER(signature.sublist(0, 32));
+  final s = toDER(signature.sublist(32, 64));
+  List<int> combine = List.from(bip66encode(r, s));
+  combine.addAll(List.from(hashTypeBuffer));
+  return Uint8List.fromList(combine);
+}
+Uint8List toDER (Uint8List x) {
+  var i = 0;
+  while (x[i] == 0) ++i;
+  if (i == x.length) return ZERO;
+  x = x.sublist(i);
+  List<int> combine = List.from(ZERO);
+  combine.addAll(x);
+  if (x[0] & 0x80 != 0) return Uint8List.fromList(combine);
+  return x;
 }

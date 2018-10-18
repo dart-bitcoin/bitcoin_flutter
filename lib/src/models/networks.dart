@@ -11,12 +11,22 @@ class NetworkType {
   NetworkType({@required this.messagePrefix, @required this.bech32, @required this.bip32, @required this.pubKeyHash,
     @required this.scriptHash, @required this.wif});
 
+  @override
+  String toString() {
+    return 'NetworkType{messagePrefix: $messagePrefix, bech32: $bech32, bip32: ${bip32.toString()}, pubKeyHash: $pubKeyHash, scriptHash: $scriptHash, wif: $wif}';
+  }
+
 }
 class Bip32Type {
   int public;
   int private;
 
   Bip32Type({@required this.public, @required this.private});
+
+  @override
+  String toString() {
+    return 'Bip32Type{public: $public, private: $private}';
+  }
 
 }
 final bitcoin = new NetworkType(

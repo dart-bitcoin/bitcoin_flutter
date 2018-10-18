@@ -16,10 +16,7 @@ class P2PKH {
   }
   _init() {
     if (data.address != null) {
-      AddressType _address = _getAddress(data.address);
-      if (_address.version != network.pubKeyHash) throw new ArgumentError('Invalid version or Network mismatch');
-      if (_address.hash.length != 20) throw new ArgumentError('Invalid address');
-      data.hash = _address.hash;
+      _getDataFromAddress(data.address);
       _getDataFromHash();
     } else if (data.hash != null) {
       _getDataFromHash();
@@ -54,8 +51,7 @@ class P2PKH {
     }
     if (data.signature == null && _chunks != null) data.signature = (_chunks[0] is int) ? new Uint8List.fromList([_chunks[0]]) : _chunks[0];
     if (data.input == null && data.pubkey != null && data.signature != null) {
-      Uint8List combine = Uint8List.fromList([data.pubkey, data.signature].expand((i) => i).toList(growable: false));
-      data.input = bscript.compile(combine);
+      data.input = bscript.compile([data.signature, data.pubkey]);
     }
   }
   void _getDataFromHash() {
@@ -75,24 +71,15 @@ class P2PKH {
       ]);
     }
   }
-  AddressType _getAddress(String address) {
+  void _getDataFromAddress(String address) {
     Uint8List payload = bs58check.decode(address);
     final version = payload.buffer.asByteData().getUint8(0);
-    final hash = payload.sublist(1);
-    return new AddressType(version: version, hash: hash);
+    if (version != network.pubKeyHash) throw new ArgumentError('Invalid version or Network mismatch');
+    data.hash = payload.sublist(1);
+    if (data.hash.length != 20) throw new ArgumentError('Invalid address');
   }
 }
 
-class AddressType {
-  int version;
-  Uint8List hash;
-
-  AddressType({this.version, this.hash});
-
-}
-class P2pkhOutput {
-  NetworkType network;
-}
 class P2PKHData {
   String address;
   Uint8List hash;

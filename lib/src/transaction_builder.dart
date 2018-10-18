@@ -6,7 +6,6 @@ import 'package:bs58check/bs58check.dart' as bs58check;
 import 'utils/script.dart' as bscript;
 import 'payments/p2pkh.dart';
 import 'package:hex/hex.dart';
-import 'package:test/test.dart';
 class TransactionBuilder {
   NetworkType network;
   int maximumFeeRate;

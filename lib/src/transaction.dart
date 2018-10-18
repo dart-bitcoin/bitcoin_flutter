@@ -3,6 +3,7 @@ import '../src/crypto.dart';
 import 'utils/check_types.dart';
 import 'package:hex/hex.dart';
 import 'utils/script.dart' as bscript;
+import 'crypto.dart' as bcrypto;
 import 'payments/p2pkh.dart' show P2PKH, P2PKHData;
 import 'utils/constants/op.dart';
 import 'utils/varuint.dart' as varuint;
@@ -21,6 +22,7 @@ final BLANK_OUTPUT = new Output(script: EMPTY_SCRIPT, valueBuffer: VALUE_UINT64_
 
 class Transaction {
   int version = 1;
+  int locktime = 0;
   List<Input> ins = [];
   List<Output> outs = [];
   Transaction();
@@ -99,42 +101,54 @@ class Transaction {
   String toHex() {
     return HEX.encode(this.toBuffer());
   }
+  bool isCoinbaseHash(buffer) {
+    isHash256bit(buffer);
+    for (var i = 0; i < 32; ++i) {
+      if (buffer[i] != 0) return false;
+    }
+    return true;
+  }
+  bool isCoinbase() {
+    return ins.length == 1 && isCoinbaseHash(ins[0].hash);
+  }
+  Uint8List getHash() {
+    return bcrypto.hash256(_toBuffer());
+  }
+  String getId() {
+    return HEX.encode(getHash().reversed.toList());
+  }
   _toBuffer([Uint8List buffer, initialOffset]) {
     if (buffer == null) buffer = new Uint8List(virtualSize());
     var bytes = buffer.buffer.asByteData();
     var offset = initialOffset ?? 0;
-    bytes.setInt32(offset, version, Endian.little);
-    offset += 4;
-    varuint.encode(this.ins.length, buffer, offset);
-    offset += varuint.encodingLength(this.ins.length);
+    writeSlice (slice) { buffer.setRange(offset, offset + slice.length, slice); offset += slice.length; }
+    writeUInt32 (i) { bytes.setUint32(offset, i, Endian.little); offset += 4; }
+    writeInt32 (i) { bytes.setInt32(offset, i, Endian.little); offset += 4; }
+    writeUInt64 (i) { bytes.setUint64(offset, i, Endian.little); offset += 8; }
+    writeVarInt (i) {
+      varuint.encode(i, buffer, offset);
+      offset += varuint.encodingLength(i);
+    }
+    writeVarSlice (slice) { writeVarInt(slice.length); writeSlice(slice); }
+    writeInt32(version);
+    writeVarInt(this.ins.length);
     ins.forEach((txIn) {
-      buffer.setRange(offset, offset + txIn.hash.length, txIn.hash);
-      offset += txIn.hash.length;
-      bytes.setUint32(offset, txIn.index, Endian.little);
-      offset += 4;
-      varuint.encode(txIn.script.length, buffer, offset);
-      offset += varuint.encodingLength(txIn.script.length);
-      buffer.setRange(offset, offset + txIn.script.length, txIn.script);
-      offset += txIn.script.length;
-      bytes.setUint32(offset, txIn.sequence, Endian.little);
-      offset += 4;
+      writeSlice(txIn.hash);
+      writeUInt32(txIn.index);
+      writeVarSlice(txIn.script);
+      writeUInt32(txIn.sequence);
     });
     varuint.encode(outs.length, buffer, offset);
     offset += varuint.encodingLength(outs.length);
     outs.forEach((txOut) {
       if (txOut.valueBuffer == null) {
-        bytes.setUint64(offset, txOut.value, Endian.little);
-        offset += 8;
+        writeUInt64(txOut.value);
       } else {
-        buffer.setRange(offset, offset + txOut.valueBuffer.length, txOut.valueBuffer);
-        offset += txOut.valueBuffer.length;
+        writeSlice(txOut.valueBuffer);
       }
-      varuint.encode(txOut.script.length, buffer, offset);
-      offset += varuint.encodingLength(txOut.script.length);
-      buffer.setRange(offset, offset + txOut.script.length, txOut.script);
-      offset += txOut.script.length;
+      writeVarSlice(txOut.script);
     });
-
+    writeUInt32(this.locktime);
     // avoid slicing unless necessary
     if (initialOffset != null) return buffer.sublist(initialOffset, offset);
     return buffer;
@@ -142,6 +156,7 @@ class Transaction {
   factory Transaction.clone(Transaction _tx) {
     Transaction tx = new Transaction();
     tx.version = _tx.version;
+    tx.locktime = _tx.locktime;
     tx.ins = _tx.ins.map((input) {
       return Input.clone(input);
     }).toList();
@@ -149,6 +164,63 @@ class Transaction {
       return Output.clone(output);
     }).toList();
     return tx;
+  }
+  factory Transaction.fromBuffer(Uint8List buffer) {
+    var offset = 0;
+    ByteData bytes = buffer.buffer.asByteData();
+    Uint8List readSlice (n) {
+      offset += n;
+      return buffer.sublist(offset - n, offset);
+    }
+
+    int readUInt32 () {
+      final i = bytes.getUint32(offset, Endian.little);
+      offset += 4;
+      return i;
+    }
+    int readInt32 () {
+      final i = bytes.getInt32(offset, Endian.little);
+      offset += 4;
+      return i;
+    }
+    int readUInt64 () {
+      final i = bytes.getUint64(offset, Endian.little);
+      offset += 8;
+      return i;
+    }
+    int readVarInt () {
+      final vi = varuint.decode(buffer, offset);
+      offset += varuint.encodingLength(vi);
+      return vi;
+    }
+    Uint8List readVarSlice () {
+      return readSlice(readVarInt());
+    }
+    final tx = new Transaction();
+    tx.version = readInt32();
+
+    final vinLen = readVarInt();
+    for (var i = 0; i < vinLen; ++i) {
+      tx.ins.add(new Input(
+        hash: readSlice(32),
+        index: readUInt32(),
+        script: readVarSlice(),
+        sequence: readUInt32()
+      ));
+    }
+    final voutLen = readVarInt();
+    for (var i = 0; i < voutLen; ++i) {
+      tx.outs.add(new Output(
+        value: readUInt64(),
+        script: readVarSlice()
+      ));
+    }
+    tx.locktime = readUInt32();
+    if (offset != buffer.length) throw new ArgumentError('Transaction has unexpected data');
+    return tx;
+  }
+  factory Transaction.fromHex(String hex) {
+    return Transaction.fromBuffer(HEX.decode(hex));
   }
 }
 class Input {

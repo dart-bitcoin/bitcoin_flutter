@@ -6,6 +6,7 @@ import 'ecpair.dart';
 import 'models/networks.dart';
 import 'transaction.dart';
 import 'payments/p2pkh.dart';
+
 class TransactionBuilder {
   NetworkType network;
   int maximumFeeRate;

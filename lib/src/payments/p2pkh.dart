@@ -1,11 +1,13 @@
 import 'dart:typed_data';
-import '../../src/crypto.dart';
-import '../../src/models/networks.dart';
+import 'package:meta/meta.dart';
 import 'package:bip32/src/utils/ecurve.dart' show isPoint;
 import 'package:bs58check/bs58check.dart' as bs58check;
+
+import '../crypto.dart';
+import '../models/networks.dart';
 import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
-import 'package:meta/meta.dart';
+
 class P2PKH {
   P2PKHData data;
   NetworkType network;

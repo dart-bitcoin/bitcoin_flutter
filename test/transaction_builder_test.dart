@@ -252,7 +252,6 @@ main() {
                 try {
                   expect(txb.sign(i, keyPair2, sign['hashType']), isArgumentError);
                 } catch(err) {
-                  print(err);
                   expect((err as ArgumentError).message, f['exception']);
                 }
                 threw = true;
@@ -286,7 +285,6 @@ main() {
               }
               expect(txb.build(), isArgumentError);
             } catch (err) {
-              print(err);
               expect((err as ArgumentError).message, f['exception']);
             }
           });
@@ -302,7 +300,6 @@ main() {
                 }
                 expect(txb.buildIncomplete(), isArgumentError);
               } catch (err) {
-                print(err);
                 expect((err as ArgumentError).message, f['exception']);
               }
             });

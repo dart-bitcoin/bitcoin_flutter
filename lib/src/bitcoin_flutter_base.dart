@@ -1,10 +1,11 @@
 // TODO: Put public facing types in this file.
 import 'dart:typed_data';
+import 'package:hex/hex.dart';
 import 'package:bip32/bip32.dart' show BIP32;
 import 'models/networks.dart';
-import 'package:hex/hex.dart';
 import 'payments/p2pkh.dart';
 import 'ecpair.dart';
+
 /// Checks if you are awesome. Spoiler: you are.
 class HDWallet {
   BIP32 _bip32;

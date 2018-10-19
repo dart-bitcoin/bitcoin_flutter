@@ -241,7 +241,7 @@ class Input {
   }
   factory Input.expandInput(Uint8List scriptSig) {
     if (_isP2PKHInput(scriptSig) == false) {
-      throw ArgumentError("Unsupport scriptSig!");
+      throw ArgumentError("Invalid or non-support script");
     }
     P2PKH p2pkh = new P2PKH(data: new P2PKHData(input: scriptSig));
     return new Input(prevOutScript: p2pkh.data.output, pubkeys: [p2pkh.data.pubkey], signatures: [p2pkh.data.signature]);
@@ -311,7 +311,7 @@ bool isCoinbaseHash(Uint8List buffer) {
 }
 bool _isP2PKHInput(script) {
   final chunks = bscript.decompile(script);
-  return chunks.length == 2 &&
+  return chunks != null && chunks.length == 2 &&
       bscript.isCanonicalScriptSignature(chunks[0]) &&
       bscript.isCanonicalPubKey(chunks[1]);
 }

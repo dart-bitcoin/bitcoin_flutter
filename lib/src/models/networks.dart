@@ -8,7 +8,7 @@ class NetworkType {
   int scriptHash;
   int wif;
 
-  NetworkType({@required this.messagePrefix, @required this.bech32, @required this.bip32, @required this.pubKeyHash,
+  NetworkType({@required this.messagePrefix, this.bech32, @required this.bip32, @required this.pubKeyHash,
     @required this.scriptHash, @required this.wif});
 
   @override

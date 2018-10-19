@@ -1,11 +1,11 @@
-import 'package:bitcoin_flutter/src/ecpair.dart';
-import 'models/networks.dart';
-import 'transaction.dart';
 import 'dart:typed_data';
+import 'package:hex/hex.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'utils/script.dart' as bscript;
+import 'ecpair.dart';
+import 'models/networks.dart';
+import 'transaction.dart';
 import 'payments/p2pkh.dart';
-import 'package:hex/hex.dart';
 class TransactionBuilder {
   NetworkType network;
   int maximumFeeRate;
@@ -18,24 +18,76 @@ class TransactionBuilder {
     this._inputs = [];
     this._tx = new Transaction();
     this._tx.version = 2;
+  }
 
+  List<Input> get inputs => _inputs;
+
+  factory TransactionBuilder.fromTransaction(Transaction transaction, [NetworkType network]) {
+    final txb = new TransactionBuilder(network: network);
+    // Copy transaction fields
+    txb.setVersion(transaction.version);
+    txb.setLockTime(transaction.locktime);
+
+    // Copy outputs (done first to avoid signature invalidation)
+    transaction.outs.forEach((txOut) {
+      txb.addOutput(txOut.script, txOut.value);
+    });
+
+    // Copy inputs
+    transaction.ins.forEach((txIn) {
+      txb._addInputUnsafe(txIn.hash, txIn.index, new Input(sequence: txIn.sequence, script: txIn.script));
+    });
+
+    return txb;
   }
   setVersion(int version) {
     if (version < 0 || version > 0xFFFFFFFF) throw ArgumentError("Expected Uint32");
     _tx.version = version;
   }
-  int addOutput(String address, int value) {
+  setLockTime(int locktime) {
+    if (locktime < 0 || locktime > 0xFFFFFFFF) throw ArgumentError("Expected Uint32");
+    // if any signatures exist, throw
+    if (this._inputs.map((input) {
+      if (input.signatures == null) return false;
+      return input.signatures.map((s) { return s != null; }).contains(true);
+    }).contains(true)) {
+      throw new ArgumentError('No, this would invalidate signatures');
+    }
+    _tx.locktime = locktime;
+  }
+  int addOutput(dynamic data, int value) {
+    var scriptPubKey;
+    if (data is String) {
+      scriptPubKey = addressToOutputScript(data, network);
+    } else if (data is Uint8List) {
+      scriptPubKey = data;
+    } else {
+      throw new ArgumentError('Address invalid');
+    }
     if (!_canModifyOutputs()) {
       throw new ArgumentError('No, this would invalidate signatures');
     }
-    Uint8List scriptPubKey = _addressToOutputScript(address, network);
     return _tx.addOutput(scriptPubKey, value);
   }
-  int addInput(String txHash, int vout, [int sequence, Uint8List prevOutScript]) {
+  int addInput(dynamic txHash, int vout, [int sequence, Uint8List prevOutScript]) {
     if (!_canModifyInputs()) {
       throw new ArgumentError('No, this would invalidate signatures');
     }
-    return _addInputUnsafe(txHash, vout, new Input(sequence: sequence, prevOutScript: prevOutScript));
+    Uint8List hash;
+    var value;
+    if (txHash is String) {
+      hash = Uint8List.fromList(HEX.decode(txHash).reversed.toList());
+    } else if (txHash is Uint8List) {
+      hash = txHash;
+    } else if (txHash is Transaction) {
+      final txOut = (txHash as Transaction).outs[vout];
+      prevOutScript = txOut.script;
+      value = txOut.value;
+      hash = txHash.getHash();
+    } else {
+      throw new ArgumentError('txHash invalid');
+    }
+    return _addInputUnsafe(hash, vout, new Input(sequence: sequence, prevOutScript: prevOutScript, value: value));
     // derive what we can from the scriptSig
   }
   sign(int vin, ECPair keyPair, [int hashType]) {
@@ -46,21 +98,19 @@ class TransactionBuilder {
     final input = _inputs[vin];
     final ourPubKey = keyPair.publicKey;
     if (!_canSign(input)) {
-      Uint8List prevOutScript = _pubkeyToOutputScript(ourPubKey);
+      Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey);
       input.signatures = [null];
       input.pubkeys = [ourPubKey];
       input.signScript = prevOutScript;
     }
-    print(input);
+    if (input.prevOutScript != null && !isValidOutput(input.prevOutScript)) throw ArgumentError('PrevOutScript invalid');
     var signatureHash = this._tx.hashForSignature(vin, input.signScript, hashType);
     // enforce in order signing of public keys
     var signed = false;
     for (var i = 0; i < input.pubkeys.length; i++) {
-      if (ourPubKey != input.pubkeys[i]) continue;
+      if (HEX.encode(ourPubKey).compareTo(HEX.encode(input.pubkeys[i])) != 0) continue;
       if (input.signatures[i] != null) throw new ArgumentError('Signature already exists');
       final signature = keyPair.sign(signatureHash);
-      print('sigHash');
-      print(HEX.encode(signatureHash));
       input.signatures[i] = bscript.encodeSignature(signature, hashType);
       signed = true;
     }
@@ -79,9 +129,12 @@ class TransactionBuilder {
     }
     final tx = Transaction.clone(_tx);
     for (var i = 0; i < _inputs.length; i++) {
-      if (_inputs[i].pubkeys == null || _inputs[i].pubkeys.length == 0) throw new ArgumentError('Missing pubkey of input $i');
-      if (_inputs[i].signatures == null || _inputs[i].signatures.length == 0) throw new ArgumentError('Missing signature of input $i');
-      final input = _toInputScript(_inputs[i].pubkeys[0], _inputs[i].signatures[0], network);
+      print(_inputs[i].toString());
+      if (_inputs[i].prevOutScript != null && !isValidOutput(_inputs[i].prevOutScript) && !allowIncomplete)
+        throw new ArgumentError('Transaction is not complete');
+      if (_inputs[i].signatures == null || _inputs[i].signatures.length == 0) throw new ArgumentError('Not enough information');
+      if (_inputs[i].pubkeys == null || _inputs[i].pubkeys.length == 0) throw new ArgumentError('Not enough information');
+      final input = toInputScript(_inputs[i].pubkeys[0], _inputs[i].signatures[0], network);
       tx.setInputScript(i, input);
     }
     if (!allowIncomplete) {
@@ -124,6 +177,7 @@ class TransactionBuilder {
           // of more outputs
           return nInputs <= nOutputs;
         }
+        return false;
       });
     });
   }
@@ -148,10 +202,10 @@ class TransactionBuilder {
         input.signScript != null &&
         input.signatures != null &&
         input.signatures.length == input.pubkeys.length &&
-        input.pubkeys.length > 0 && input.value != null;
+        input.pubkeys.length > 0;
   }
-  _addInputUnsafe(String txHash, int vout, Input options) {
-    Uint8List hash = Uint8List.fromList(HEX.decode(txHash).reversed.toList());
+  _addInputUnsafe(Uint8List hash, int vout, Input options) {
+    String txHash = HEX.encode(hash);
     Input input;
     if (isCoinbaseHash(hash)) {
       throw new ArgumentError('coinbase inputs not supported');
@@ -172,25 +226,30 @@ class TransactionBuilder {
     _prevTxSet[prevTxOut] = true;
     return vin;
   }
-  Uint8List _addressToOutputScript(String address, [NetworkType nw]) {
-    NetworkType network = nw ?? bitcoin;
-    final payload = bs58check.decode(address);
-    if (payload.length < 21) throw new ArgumentError(address + ' is too short');
-    if (payload.length > 21) throw new ArgumentError(address + ' is too long');
-    P2PKH p2pkh = new P2PKH(data: new P2PKHData(address: address), network: network);
-    return p2pkh.data.output;
-  }
-  Uint8List _pubkeyToOutputScript(Uint8List pubkey, [NetworkType nw]) {
-    NetworkType network = nw ?? bitcoin;
-    P2PKH p2pkh = new P2PKH(data: new P2PKHData(pubkey: pubkey), network: network);
-    return p2pkh.data.output;
-  }
-  Uint8List _toInputScript(Uint8List pubkey, Uint8List signature,  [NetworkType nw]) {
-    NetworkType network = nw ?? bitcoin;
-    P2PKH p2pkh = new P2PKH(data: new P2PKHData(pubkey: pubkey, signature: signature), network: network);
-    return p2pkh.data.input;
-  }
   int _signatureHashType (Uint8List buffer) {
     return buffer.buffer.asByteData().getUint8(buffer.length - 1);
   }
+
+  Transaction get tx => _tx;
+
+  Map get prevTxSet => _prevTxSet;
+}
+
+Uint8List addressToOutputScript(String address, [NetworkType nw]) {
+  NetworkType network = nw ?? bitcoin;
+  final payload = bs58check.decode(address);
+  if (payload.length < 21) throw new ArgumentError(address + ' is too short');
+  if (payload.length > 21) throw new ArgumentError(address + ' is too long');
+  P2PKH p2pkh = new P2PKH(data: new P2PKHData(address: address), network: network);
+  return p2pkh.data.output;
+}
+Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType nw]) {
+  NetworkType network = nw ?? bitcoin;
+  P2PKH p2pkh = new P2PKH(data: new P2PKHData(pubkey: pubkey), network: network);
+  return p2pkh.data.output;
+}
+Uint8List toInputScript(Uint8List pubkey, Uint8List signature,  [NetworkType nw]) {
+  NetworkType network = nw ?? bitcoin;
+  P2PKH p2pkh = new P2PKH(data: new P2PKHData(pubkey: pubkey, signature: signature), network: network);
+  return p2pkh.data.input;
 }

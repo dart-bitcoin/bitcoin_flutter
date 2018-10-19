@@ -21,12 +21,7 @@ class P2PKH {
     } else if (data.hash != null) {
       _getDataFromHash();
     } else if (data.output != null) {
-      if (data.output.length != 25 ||
-          data.output[0] != OPS['OP_DUP'] ||
-          data.output[1] != OPS['OP_HASH160'] ||
-          data.output[2] != 0x14 ||
-          data.output[23] != OPS['OP_EQUALVERIFY'] ||
-          data.output[24] != OPS['OP_CHECKSIG']) throw new ArgumentError('Output is invalid');
+      if (!isValidOutput(data.output)) throw new ArgumentError('Output is invalid');
       data.hash = data.output.sublist(3, 23);
       _getDataFromHash();
     } else if (data.pubkey != null) {
@@ -94,4 +89,13 @@ class P2PKHData {
     return 'P2PKHData{address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input}';
   }
 
+}
+
+isValidOutput(Uint8List data) {
+  return data.length == 25 &&
+      data[0] == OPS['OP_DUP'] &&
+      data[1] == OPS['OP_HASH160'] &&
+      data[2] == 0x14 &&
+      data[23] == OPS['OP_EQUALVERIFY'] &&
+      data[24] == OPS['OP_CHECKSIG'];
 }

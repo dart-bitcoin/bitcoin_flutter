@@ -7,9 +7,10 @@ import '../lib/src/utils/script.dart' as bscript;
 import '../lib/src/transaction.dart';
 main() {
   final fixtures = json.decode(new File("test/fixtures/transaction.json").readAsStringSync(encoding: utf8));
+  final valids = (fixtures['valid'] as List<dynamic>);
   group('Transaction', () {
     group('fromBuffer/fromHex', () {
-      (fixtures['valid'] as List<dynamic>).forEach(importExport);
+      valids.forEach(importExport);
       (fixtures['hashForSignature'] as List<dynamic>).forEach(importExport);
       (fixtures['invalid']['fromBuffer'] as List<dynamic>).forEach((f) {
         test('throws on ${f['exception']}', () {
@@ -27,7 +28,7 @@ main() {
       });
     });
     group('toBuffer/toHex', () {
-      (fixtures['valid'] as List<dynamic>).forEach((f) {
+      valids.forEach((f) {
         test('exports ${f['description']} (${f['id']})', () {
           Transaction actual = fromRaw(f['raw']);
           expect(actual.toHex(), f['hex']);
@@ -36,7 +37,7 @@ main() {
     });
     group('weight/virtualSize', () {
       test('computes virtual size', () {
-        (fixtures['valid'] as dynamic).forEach((f) {
+        valids.forEach((f) {
           final transaction = Transaction.fromHex(f['hex']);
           expect(transaction.virtualSize(), f['virtualSize']);
         });
@@ -85,7 +86,7 @@ main() {
           expect(tx.getId(), f['id']);
         });
       }
-      (fixtures['valid'] as List<dynamic>).forEach(verify);
+      valids.forEach(verify);
     });
     group('isCoinbase', () {
       verify (f) {
@@ -94,7 +95,7 @@ main() {
           expect(tx.isCoinbase(), f['coinbase']);
         });
       }
-      (fixtures['valid'] as List<dynamic>).forEach(verify);
+      valids.forEach(verify);
     });
     group('hashForSignature', () {
       (fixtures['hashForSignature'] as List<dynamic>).forEach((f) {

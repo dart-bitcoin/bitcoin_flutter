@@ -6,3 +6,7 @@
 ## 1.0.0
 
 - Transaction implementation
+
+## 1.0.1
+
+- Add derive and derive path for HD Wallet

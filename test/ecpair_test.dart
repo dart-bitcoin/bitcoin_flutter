@@ -126,7 +126,6 @@ main() {
 NETWORKS.NetworkType _getNetwork(f) {
    var network;
   if (f['network'] != null) {
-    print(f['network']);
     if (f['network'] == 'bitcoin') {
       network = NETWORKS.bitcoin;
     } else if (f['network'] == 'testnet') {

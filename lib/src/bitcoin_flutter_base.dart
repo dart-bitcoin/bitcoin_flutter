@@ -1,10 +1,11 @@
 // TODO: Put public facing types in this file.
 import 'dart:typed_data';
+import 'package:hex/hex.dart';
 import 'package:bip32/bip32.dart' show BIP32;
 import 'models/networks.dart';
-import 'package:hex/hex.dart';
 import 'payments/p2pkh.dart';
 import 'ecpair.dart';
+import 'package:meta/meta.dart';
 /// Checks if you are awesome. Spoiler: you are.
 class HDWallet {
   BIP32 _bip32;
@@ -18,13 +19,25 @@ class HDWallet {
   String get wif => _bip32 != null ? _bip32.toWIF() : null;
   String get address => _p2pkh != null ? _p2pkh.data.address : null;
 
-  HDWallet(Uint8List seed, {NetworkType network}) {
-    this.network = network ?? bitcoin;
-    this.seed = HEX.encode(seed);
-    this._bip32 = BIP32.fromSeed(seed);
-    this._p2pkh = new P2PKH(data: new P2PKHData(pubkey: this._bip32.publicKey), network: network);
+  HDWallet({@required bip32, @required p2pkh, @required this.network, this.seed}) {
+    this._bip32 = bip32;
+    this._p2pkh = p2pkh;
   }
-
+  BIP32 derivePath(String path) {
+    return _bip32.derivePath(path);
+  }
+  factory HDWallet.fromSeed(Uint8List seed, {NetworkType network}) {
+    network = network ?? bitcoin;
+    final seedHex = HEX.encode(seed);
+    final bip32 = BIP32.fromSeed(seed);
+    final p2pkh = new P2PKH(data: new P2PKHData(pubkey: bip32.publicKey), network: network);
+    return HDWallet(bip32: bip32, p2pkh: p2pkh, network: network, seed: seedHex);
+}
+  factory HDWallet.fromPath(HDWallet wallet, String path) {
+    final bip32 = wallet.derivePath(path);
+    final p2pkh = new P2PKH(data: new P2PKHData(pubkey: bip32.publicKey), network: wallet.network);
+    return HDWallet(bip32: bip32, p2pkh: p2pkh, network: wallet.network);
+  }
 }
 class Wallet {
   ECPair _keyPair;

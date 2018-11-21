@@ -1,8 +1,9 @@
 import 'dart:typed_data';
+import 'dart:math';
 import 'package:bip32/src/utils/ecurve.dart' as ecc;
 import 'package:bip32/src/utils/wif.dart' as wif;
 import 'models/networks.dart';
-import 'dart:math';
+
 class ECPair {
   Uint8List _d;
   Uint8List _Q;

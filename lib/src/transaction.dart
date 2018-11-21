@@ -1,12 +1,12 @@
 import 'dart:typed_data';
-import '../src/crypto.dart';
-import 'utils/check_types.dart';
 import 'package:hex/hex.dart';
-import 'utils/script.dart' as bscript;
-import 'crypto.dart' as bcrypto;
 import 'payments/p2pkh.dart' show P2PKH, P2PKHData;
+import 'crypto.dart' as bcrypto;
+import 'utils/check_types.dart';
+import 'utils/script.dart' as bscript;
 import 'utils/constants/op.dart';
 import 'utils/varuint.dart' as varuint;
+
 const DEFAULT_SEQUENCE = 0xffffffff;
 const SIGHASH_ALL = 0x01;
 const SIGHASH_NONE = 0x02;
@@ -88,7 +88,7 @@ class Transaction {
     final buffer = Uint8List(txTmp.virtualSize() + 4);
     buffer.buffer.asByteData().setUint32(buffer.length - 4, hashType, Endian.little);
     txTmp._toBuffer(buffer, 0);
-    return hash256(buffer);
+    return bcrypto.hash256(buffer);
   }
   int virtualSize() {
     return 8 + varuint.encodingLength(ins.length) + varuint.encodingLength(outs.length)
@@ -241,7 +241,7 @@ class Input {
   }
   factory Input.expandInput(Uint8List scriptSig) {
     if (_isP2PKHInput(scriptSig) == false) {
-      throw ArgumentError("Unsupport scriptSig!");
+      throw ArgumentError("Invalid or non-support script");
     }
     P2PKH p2pkh = new P2PKH(data: new P2PKHData(input: scriptSig));
     return new Input(prevOutScript: p2pkh.data.output, pubkeys: [p2pkh.data.pubkey], signatures: [p2pkh.data.signature]);
@@ -279,7 +279,7 @@ class Output {
     }
     // does our hash160(pubKey) match the output scripts?
     Uint8List pkh1 = new P2PKH(data: new P2PKHData(output: script)).data.hash;
-    Uint8List pkh2 = hash160(ourPubKey);
+    Uint8List pkh2 = bcrypto.hash160(ourPubKey);
     if (pkh1 != pkh2) throw ArgumentError("Hash mismatch!");
     return new Output(
       pubkeys: [ourPubKey],
@@ -311,7 +311,7 @@ bool isCoinbaseHash(Uint8List buffer) {
 }
 bool _isP2PKHInput(script) {
   final chunks = bscript.decompile(script);
-  return chunks.length == 2 &&
+  return chunks != null && chunks.length == 2 &&
       bscript.isCanonicalScriptSignature(chunks[0]) &&
       bscript.isCanonicalPubKey(chunks[1]);
 }

@@ -75,9 +75,6 @@ int readUInt64LE (ByteData bytes, int offset) {
 int writeUInt64LE (ByteData bytes, int offset, int value) {
   isUint(value, 64);
   bytes.setInt32(offset, value & -1, Endian.little);
-  print('meo');
-  print(value & 1);
-  print(value ~/ 0x100000000);
   bytes.setUint32(offset + 4, value ~/ 0x100000000, Endian.little);
   return offset + 8;
 }

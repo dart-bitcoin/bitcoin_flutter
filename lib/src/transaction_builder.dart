@@ -130,10 +130,10 @@ class TransactionBuilder {
     final tx = Transaction.clone(_tx);
     for (var i = 0; i < _inputs.length; i++) {
       print(_inputs[i].toString());
-      if (_inputs[i].prevOutScript != null && !isValidOutput(_inputs[i].prevOutScript) && !allowIncomplete)
-        throw new ArgumentError('Transaction is not complete');
-      if (_inputs[i].signatures == null || _inputs[i].signatures.length == 0) throw new ArgumentError('Not enough information');
+//      if (_inputs[i].prevOutScript != null && !isValidOutput(_inputs[i].prevOutScript) && !allowIncomplete)
+//        throw new ArgumentError('');
       if (_inputs[i].pubkeys == null || _inputs[i].pubkeys.length == 0) throw new ArgumentError('Not enough information');
+      if (_inputs[i].signatures == null || _inputs[i].signatures.length == 0) throw new ArgumentError('Transaction is not complete');
       final input = toInputScript(_inputs[i].pubkeys[0], _inputs[i].signatures[0], network);
       tx.setInputScript(i, input);
     }

@@ -14,3 +14,7 @@
 ## 1.0.2
 
 - Add sign and verify for HD Wallet and Wallet
+
+## 1.0.3
+
+- Fix bug testnet BIP32

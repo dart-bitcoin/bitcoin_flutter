@@ -10,3 +10,7 @@
 ## 1.0.1
 
 - Add derive and derive path for HD Wallet
+
+## 1.0.2
+
+- Add sign and verify for HD Wallet and Wallet

@@ -1,6 +1,6 @@
 import 'check_types.dart';
 import 'dart:typed_data';
-Uint8List encode(number, [Uint8List buffer,int offset]) {
+Uint8List encode(int number, [Uint8List buffer,int offset]) {
   if (!isUint(number, 53));
 
   buffer = buffer ?? new Uint8List(encodingLength(number));
@@ -23,7 +23,7 @@ Uint8List encode(number, [Uint8List buffer,int offset]) {
   } else {
     bytes.setUint8(offset, 0xff);
     bytes.setUint32(offset + 1, number, Endian.little);
-    bytes.setUint32(offset + 5, (number / 0x100000000) | 0, Endian.little);
+    bytes.setUint32(offset + 5, (number ~/ 0x100000000) | 0, Endian.little);
   }
 
   return buffer;

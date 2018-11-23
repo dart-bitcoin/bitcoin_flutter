@@ -29,11 +29,11 @@ class ECPair {
         version: network.wif, privateKey: privateKey, compressed: compressed));
   }
 
-  sign(Uint8List hash) {
+  Uint8List sign(Uint8List hash) {
     return ecc.sign(hash, privateKey);
   }
 
-  verify(Uint8List hash, Uint8List signature) {
+  bool verify(Uint8List hash, Uint8List signature) {
     return ecc.verify(hash, publicKey, signature);
   }
 

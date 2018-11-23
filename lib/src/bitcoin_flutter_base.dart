@@ -1,11 +1,13 @@
 // TODO: Put public facing types in this file.
 import 'dart:typed_data';
+import 'package:bitcoin_flutter/src/utils/magic_hash.dart';
 import 'package:hex/hex.dart';
 import 'package:bip32/bip32.dart' show BIP32;
 import 'models/networks.dart';
 import 'payments/p2pkh.dart';
 import 'ecpair.dart';
 import 'package:meta/meta.dart';
+import 'dart:convert';
 
 /// Checks if you are awesome. Spoiler: you are.
 class HDWallet {
@@ -48,6 +50,14 @@ class HDWallet {
     return HDWallet(
         bip32: bip32, p2pkh: p2pkh, network: network, seed: seedHex);
   }
+  Uint8List sign(String message) {
+    Uint8List messageHash = magicHash(message);
+    return _bip32.sign(messageHash);
+  }
+  bool verify({String message, Uint8List signature}) {
+    Uint8List messageHash = magicHash(message);
+    return _bip32.verify(messageHash, signature);
+  }
 }
 
 class Wallet {
@@ -72,5 +82,13 @@ class Wallet {
     final _p2pkh = new P2PKH(
         data: new P2PKHData(pubkey: _keyPair.publicKey), network: network);
     return Wallet(_keyPair, _p2pkh);
+  }
+  Uint8List sign(String message) {
+    Uint8List messageHash = magicHash(message);
+    return _keyPair.sign(messageHash);
+  }
+  bool verify({String message, Uint8List signature}) {
+    Uint8List messageHash = magicHash(message);
+    return _keyPair.verify(messageHash, signature);
   }
 }

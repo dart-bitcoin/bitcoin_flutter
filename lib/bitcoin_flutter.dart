@@ -7,4 +7,5 @@ export 'src/bitcoin_flutter_base.dart';
 export 'src/models/networks.dart';
 export 'src/transaction.dart';
 export 'src/transaction_builder.dart';
+export 'src/ecpair.dart';
 // TODO: Export any libraries intended for clients of this package.

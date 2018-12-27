@@ -18,3 +18,7 @@
 ## 1.0.3
 
 - Fix bug testnet BIP32
+
+## 1.0.4
+
+- Add transaction to index

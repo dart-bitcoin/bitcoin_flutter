@@ -26,3 +26,7 @@
 ## 1.0.5
 
 - Add ECPair to index
+
+## 1.0.6
+
+- Accept non-standard payment

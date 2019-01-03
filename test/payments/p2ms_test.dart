@@ -30,8 +30,8 @@ main() {
         final arguments = _preformP2MS(f['arguments']);
         try {
           expect(new P2MS(data: arguments), isArgumentError);
-        } catch(err) {
-          print(err);
+        } catch(err,stacktrace) {
+          print(stacktrace);
           expect((err as ArgumentError).message, f['exception']);
         }
 

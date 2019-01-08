@@ -45,8 +45,8 @@ P2MSData _preformP2MS(dynamic x) {
   final input = x['input'] != null ? bscript.fromASM(x['input']) : null;
   final output = x['output'] != null ? bscript.fromASM(x['output']) : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
   final pubkeys = x['pubkeys']!= null ? convertToList(x['pubkeys']) : null;
-  
-  final signatures = x['signatures'];
+  final signatures = x['signatures']!= null ? convertToList(x['signatures']) : null;
+
   final witness = x['witness'];
   final options = x['options'];
 

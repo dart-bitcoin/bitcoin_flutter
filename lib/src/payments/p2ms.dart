@@ -144,12 +144,14 @@ class P2MS {
     if (_temp['n'] < _temp['m']) {throw new ArgumentError('Pubkey count cannot be less than m');}
   }
   if (data.signatures != null) {
-
+    _setSigs();
     if (data.signatures.length < _temp['m']) {throw new ArgumentError('Not enough signatures provided');}
     if (data.signatures.length > _temp['m']) {throw new ArgumentError('Too many signatures provided');}
     }
+    _setInput();
+    _setSigs();
   if (data.input != null) {
-      if (data.input[0] != OPS['OPS.OP_0']) {throw new ArgumentError('Input is invalid');}
+      if (data.input[0] != OPS['OP_0']) {throw new ArgumentError('Input is invalid');}
       if (_temp['signatures'].length == 0 || !_temp['signatures'].every((x) => _isAcceptableSignature(x,data.options)))
       {throw new ArgumentError('Input has invalid signature(s)');}
 
@@ -158,10 +160,6 @@ class P2MS {
     }
 
   }
-
-
-  
-
 
 }
 

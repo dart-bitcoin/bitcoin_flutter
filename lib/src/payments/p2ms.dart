@@ -47,14 +47,13 @@ class P2MS {
     if(data.options['validate']==true){
       _check();
     }
+    _assignVariables();
   }
    void _decode(output){
      
     if(_isDecoded) {return;}
     else{
-      
       _isDecoded = true;
-      
       _chunks = bscript.decompile(output);
       _temp['m'] = _chunks[0] - OPS['OP_RESERVED'];
       _temp['n'] = _chunks[_chunks.length - 2] - OPS['OP_RESERVED'];
@@ -97,6 +96,12 @@ class P2MS {
     if (data.output == null) {return;}
     _decode(data.output);
   }
+  void _assignVariables(){
+    if (_temp['m'] != null) {data.m = _temp['m'];}
+    if (_temp['n'] != null) {data.n = _temp['n'];}
+    if (_temp['output'] != null) {data.output = _temp['output'];}
+    if (_temp['pubkeys'] != null) {data.pubkeys = _temp['pubkeys'];}
+  }
     bool _stacksEqual(a, b) {
     if (a.length != b.length) {return false;}
     for (int i = 0; i <= a.length-1; i++) {
@@ -108,18 +113,9 @@ class P2MS {
   }
      bool _isAcceptableSignature(signature, options) {
     return (bscript.isCanonicalScriptSignature(signature) ||
-        (options.allowIncomplete && (signature == OPS['OP_0'])));
+        ((options['allowIncomplete'] == true) && (signature == OPS['OP_0'])));
   }
   void _check(){
-    //_setPubkeys();
-    // _setSigs();
-    // _setInput();
-
-    // _setOutput();
-    // _setM();
-    
-    // _setN();
-    // _setWitness(); 
     
     if (data.output != null){
       final temp = bscript.decompile(data.output);
@@ -158,7 +154,6 @@ class P2MS {
       if (data.signatures != null&& !_stacksEqual(data.signatures,_temp['signatures'])) {throw new ArgumentError('Signature mismatch');}
       if (data.m != null && data.m != data.signatures.length) {throw new ArgumentError('Signature count mismatch');}
     }
-
   }
 
 }
@@ -169,7 +164,7 @@ class P2MSData {
   int n;
   Uint8List output;
   Uint8List input;
-  List<Uint8List> pubkeys;
+  List<dynamic> pubkeys;
   List<Uint8List> signatures;
   Uint8List witness;
   Map options;
@@ -185,6 +180,6 @@ class P2MSData {
       this.options});
   @override
   String toString() {
-    return 'P2MSData{sigs: $m, neededSigs: $n, output: $output, input: $input, pubkeys: $pubkeys, sigs: $signatures, options: $signatures, witness: $witness}';
+    return 'P2MSData{m: $m, n: $n, output: $output, input: $input, pubkeys: $pubkeys, sigs: $signatures, options: $signatures, witness: $witness}';
   }
 }

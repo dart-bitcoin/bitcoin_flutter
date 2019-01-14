@@ -7,31 +7,30 @@ import 'package:hex/hex.dart';
 import 'dart:typed_data';
 main() {
   final fixtures = json.decode(new File("./test/fixtures/p2ms.json").readAsStringSync(encoding: utf8));
-/*   group('(valid case)', () {
+   group('(valid case)', () {
     (fixtures["valid"] as List<dynamic>).forEach((f) {
       test(f['description'] + ' as expected', () {
         final arguments = _preformP2MS(f['arguments']);
         final p2ms = new P2MS(data: arguments);
-        
           expect(p2ms.data.m, f['expected']['m']);
-          expect(_toString(p2ms.data.n), f['expected']['n']);
-          expect(_toString(p2ms.data.output), f['expected']['output']);
-          expect(_toString(p2ms.data.pubkeys), f['expected']['pubkeys']);
-          expect(_toString(p2ms.data.signatures), f['expected']['signatures']);
-          expect(_toString(p2ms.data.input), f['expected']['input']);
-          expect(_toString(p2ms.data.witness), f['expected']['witness']);
+          expect(p2ms.data.n, f['expected']['n']);
+          expect(_toDataForm(p2ms.data.output), f['expected']['output']); 
+          expect(p2ms.data.pubkeys, (convertToList(f['expected']['pubkeys'])));
+          print('ran');
+          expect(_toDataForm(p2ms.data.signatures), f['expected']['signatures']);
+          expect(_toDataForm(p2ms.data.input), f['expected']['input']);
+          expect(_toDataForm(p2ms.data.witness), f['expected']['witness']);
         
       });
     });
-  }); */
+  }); 
   group('(invalid case)', () {
     (fixtures["invalid"] as List<dynamic>).forEach((f) {
       test('throws ' + f['exception'] + (f['description'] != null ? ('for ' + f['description']) : ''), () {
         final arguments = _preformP2MS(f['arguments']);
         try {
           expect(new P2MS(data: arguments), isArgumentError);
-        } catch(err,stacktrace) {
-          print(stacktrace);
+        } catch(err) {
           expect((err as ArgumentError).message, f['exception']);
         }
 
@@ -59,15 +58,20 @@ List<dynamic> convertToList(dynamic x){
    } 
   return properList;}
 
-String _toString(dynamic x) {
+dynamic _toDataForm(dynamic x) {
   if (x == null) {
     return null;
   }
-  if (x is Uint8List) {
-    return HEX.encode(x);
+  if (x is Uint8List) {//used
+    return bscript.toASM(x);
   }
   if (x is List<dynamic>) {
-    return bscript.toASM(x);
+    List<dynamic> temp = [];
+    for (var i = 0 ; i < x.length; i++ ) { 
+      temp.add(x[0]); 
+   } 
+
+    return temp;
   }
   return '';
 }

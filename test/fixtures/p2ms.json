@@ -339,7 +339,7 @@
         }
       },
       {
-        "exception": "Input has invalid signature\\(s\\)",
+        "exception": "Input has invalid signature(s)",
         "arguments": {
           "m": 1,
           "pubkeys": [

@@ -73,15 +73,34 @@ class P2MS {
   void _setSigs(){
     if (data.input == null) {return;}
     var list = bscript.decompile(data.input);
-    _temp['signatures']=list.sublist(1,list.length);
+    list.removeAt(0);
+    List<Uint8List> uintList = [];
+    for (var i = 0; i < list.length; i++) {
+      uintList.add(list[i]);
+    }
+    
+    _temp['signatures'] = uintList;
+
+    //print(bscript.toASM(_temp['signatures']));
   }
   void _setInput(){
+    print(data.signatures);
+    print('ran');
     if (data.signatures == null) {return;}
-    _temp['input'] = bscript.compile( [OPS['OP_0'],data.signatures]);
+    String tempString = 'OP_0 ';
+    tempString = tempString+(bscript.toASM(data.signatures));
+    //print(tempString);
+    Uint8List tempList = bscript.fromASM(tempString);
+    _temp['input'] = bscript.compile(tempList);
+    _setWitness();   
   }
   void _setWitness(){
+    //print(_temp['input']);
     if (_temp['input'] == null) {return;}
-    _temp['witness'] = [];
+    List <Uint8List> temp = [];
+    _temp['witness'] = temp;
+    
+    
   }
 
   void _setM(){
@@ -101,6 +120,9 @@ class P2MS {
     if (_temp['n'] != null) {data.n = _temp['n'];}
     if (_temp['output'] != null) {data.output = _temp['output'];}
     if (_temp['pubkeys'] != null) {data.pubkeys = _temp['pubkeys'];}
+    if (_temp['signatures'] != null) {data.signatures = _temp['signatures'];}
+    if (_temp['input'] != null) {data.input= _temp['input'];}
+    if (_temp['witness'] != null) {data.witness= _temp['witness'];}
   }
     bool _stacksEqual(a, b) {
     if (a.length != b.length) {return false;}
@@ -116,7 +138,6 @@ class P2MS {
         ((options['allowIncomplete'] == true) && (signature == OPS['OP_0'])));
   }
   void _check(){
-    
     if (data.output != null){
       final temp = bscript.decompile(data.output);
       if (temp[0] == null) {throw new ArgumentError('Output is invalid');}
@@ -141,20 +162,24 @@ class P2MS {
   }
   if (data.signatures != null) {
     _setSigs();
+    _setInput();
     if (data.signatures.length < _temp['m']) {throw new ArgumentError('Not enough signatures provided');}
     if (data.signatures.length > _temp['m']) {throw new ArgumentError('Too many signatures provided');}
     }
-    _setInput();
-    _setSigs();
+
+    
   if (data.input != null) {
       if (data.input[0] != OPS['OP_0']) {throw new ArgumentError('Input is invalid');}
+      _setSigs();
       if (_temp['signatures'].length == 0 || !_temp['signatures'].every((x) => _isAcceptableSignature(x,data.options)))
       {throw new ArgumentError('Input has invalid signature(s)');}
-
       if (data.signatures != null&& !_stacksEqual(data.signatures,_temp['signatures'])) {throw new ArgumentError('Signature mismatch');}
       if (data.m != null && data.m != data.signatures.length) {throw new ArgumentError('Signature count mismatch');}
     }
+  _setInput();
+  _setWitness();
   }
+  
 
 }
 
@@ -166,7 +191,7 @@ class P2MSData {
   Uint8List input;
   List<dynamic> pubkeys;
   List<Uint8List> signatures;
-  Uint8List witness;
+  List<Uint8List> witness;
   Map options;
 
   P2MSData(

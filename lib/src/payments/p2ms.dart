@@ -4,8 +4,7 @@ import '../utils/script.dart' as bscript;
 import '../models/networks.dart';
 import 'dart:typed_data';
 import 'package:bip32/src/utils/ecurve.dart' show isPoint;
-//Notes
-//OP_Reserved<OP_INT_BASE https://github.com/bitcoinjs/bitcoinjs-lib/issues/1242
+
 class P2MS {
   P2MSData data;
   NetworkType network;
@@ -114,6 +113,7 @@ class P2MS {
     _decode(_temp['output']);
   }
     void _setN(){
+    _setPubkeys();
     if (_temp['pubkeys'] == null) {return;}
     _temp['n']= _temp['pubkeys'].length;
   }
@@ -164,6 +164,7 @@ class P2MS {
     _temp['n'] = data.pubkeys.length;
     _setOutput();
     _setM();
+    _setN();
     if (_temp['n'] < _temp['m']) {throw new ArgumentError('Pubkey count cannot be less than m');}
   }
   if (data.signatures != null) {

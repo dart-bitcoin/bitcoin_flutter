@@ -72,7 +72,7 @@ dynamic _toDataForm(dynamic x) {
   if (x == null) {
     return null;
   }
-  if (x is Uint8List) {//used
+  if (x is Uint8List) {
     return bscript.toASM(x);
   }
   if (x is List<dynamic>) {

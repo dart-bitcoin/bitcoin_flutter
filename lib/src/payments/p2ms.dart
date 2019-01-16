@@ -75,32 +75,38 @@ class P2MS {
     var list = bscript.decompile(data.input);
     list.removeAt(0);
     List<Uint8List> uintList = [];
+    
     for (var i = 0; i < list.length; i++) {
-      uintList.add(list[i]);
+      dynamic temp = list[i];
+      if(list[i] is int ){
+        List<int> temp1 = [];
+        temp1.add(list[i]);
+        temp = Uint8List.fromList(temp1);
+      }
+      uintList.add(temp);
     }
     
     _temp['signatures'] = uintList;
-
-    //print(bscript.toASM(_temp['signatures']));
   }
   void _setInput(){
-    print(data.signatures);
-    print('ran');
     if (data.signatures == null) {return;}
     String tempString = 'OP_0 ';
-    tempString = tempString+(bscript.toASM(data.signatures));
-    //print(tempString);
+    List<Uint8List> tempsignatures = [];
+    for (var i = 0; i < data.signatures.length; i++) {
+      if(data.signatures[i].toString()=='[0]'){
+        tempString = tempString + 'OP_0 ';
+      }else{
+        tempsignatures.add(data.signatures[i]);
+      }
+    }
+    tempString = tempString+(bscript.toASM(tempsignatures));
     Uint8List tempList = bscript.fromASM(tempString);
-    _temp['input'] = bscript.compile(tempList);
-    _setWitness();   
+    _temp['input'] = bscript.compile(tempList);  
   }
   void _setWitness(){
-    //print(_temp['input']);
-    if (_temp['input'] == null) {return;}
+    if (_temp['input'] == null && data.input == null) {return;}
     List <Uint8List> temp = [];
     _temp['witness'] = temp;
-    
-    
   }
 
   void _setM(){
@@ -133,9 +139,9 @@ class P2MS {
     }
     return true;
   }
-     bool _isAcceptableSignature(signature, options) {
+    bool _isAcceptableSignature(signature, options) {
     return (bscript.isCanonicalScriptSignature(signature) ||
-        ((options['allowIncomplete'] == true) && (signature == OPS['OP_0'])));
+        ((options['allowIncomplete'] == true) && (signature[0] == 0)));
   }
   void _check(){
     if (data.output != null){

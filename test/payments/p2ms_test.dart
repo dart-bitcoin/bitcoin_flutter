@@ -16,7 +16,7 @@ main() {
         expect(p2ms.data.m, f['expected']['m']);
         expect(p2ms.data.n, f['expected']['n']);
         expect(_toDataForm(p2ms.data.output), f['expected']['output']); 
-        expect(p2ms.data.pubkeys, (_convertToList(f['expected']['pubkeys'])));
+        expect(p2ms.data.pubkeys, _convertToList(f['expected']['pubkeys']));
         expect(p2ms.data.signatures, _convertSigs(f['expected']['signatures']));
         expect(_toDataForm(p2ms.data.input), f['expected']['input']);
         expect(_toDataForm(p2ms.data.witness), f['expected']['witness']);

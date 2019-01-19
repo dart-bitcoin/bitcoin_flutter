@@ -6,4 +6,4 @@ jobs:
     steps:
       - checkout
       - run: pub get
-      - run: pub test
+      - run: pub run test

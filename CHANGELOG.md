@@ -30,3 +30,7 @@
 ## 1.0.6
 
 - Accept non-standard payment
+
+## 1.0.7
+
+- Implement circleci

@@ -69,6 +69,6 @@ dart run test
 ## Complementing Libraries
 - [BIP39](https://github.com/anicdh/bip39) - Mnemonic generation for deterministic keys
 - [BIP32](https://github.com/anicdh/bip32) - BIP32
-- [Base58 Check](https://github.com/anicdh/bs58check) - Base58 check encoding/decoding
+- [Base58 Check](https://github.com/anicdh/bs58check-dart) - Base58 check encoding/decoding
 
 ## LICENSE [MIT](LICENSE)

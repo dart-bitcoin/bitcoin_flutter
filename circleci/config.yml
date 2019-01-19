@@ -1,9 +1,0 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: google/dart
-    steps:
-      - checkout
-      - run: pub get
-      - run: pub test

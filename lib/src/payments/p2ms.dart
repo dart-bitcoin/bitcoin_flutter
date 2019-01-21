@@ -133,10 +133,10 @@ class P2MS {
   }
   void _check(){
     if (data.output != null){
-      final temp = bscript.decompile(data.output);
-      if (temp[0] == null) {throw new ArgumentError('Output is invalid');}
-      if (temp.length < 2 ) {throw new ArgumentError('Output is invalid');}
-      if (temp[temp.length - 1] != OPS['OP_CHECKMULTISIG']) {throw new ArgumentError('Output is invalid');}
+      final tempChunks = bscript.decompile(data.output);
+      if (tempChunks[0] == null) {throw new ArgumentError('Output is invalid');}
+      if (tempChunks.length < 2 ) {throw new ArgumentError('Output is invalid');}
+      if (tempChunks[tempChunks.length - 1] != OPS['OP_CHECKMULTISIG']) {throw new ArgumentError('Output is invalid');}
       _decode(data.output);
     if(data.m <= 0 ||
         data.n > 16 ||

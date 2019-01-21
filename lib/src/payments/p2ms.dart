@@ -73,7 +73,7 @@ class P2MS {
     if (data.input == null) {return;}
     var list = bscript.decompile(data.input);
     list.removeAt(0);
-    List<Uint8List> uintList = [];
+    List<Uint8List> _chunks = [];
     
     for (var i = 0; i < list.length; i++) {
       dynamic temp = list[i];
@@ -82,10 +82,10 @@ class P2MS {
         temp1.add(list[i]);
         temp = Uint8List.fromList(temp1);
       }
-      uintList.add(temp);
+      _chunks.add(temp);
     }
     
-    _temp['signatures'] = uintList;
+    _temp['signatures'] = _chunks;
   }
   void _setInput(){
     if (data.signatures == null) {return;}

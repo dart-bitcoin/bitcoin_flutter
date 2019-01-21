@@ -303,7 +303,7 @@ class Input {
   }
   factory Input.expandInput(Uint8List scriptSig) {
     if (_isP2PKHInput(scriptSig) == false) {
-      throw ArgumentError("Invalid or non-support script");
+      return new Input(prevOutScript: scriptSig);
     }
     P2PKH p2pkh = new P2PKH(data: new P2PKHData(input: scriptSig));
     return new Input(

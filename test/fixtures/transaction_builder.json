@@ -556,18 +556,6 @@
             "value": 1000
           }
         ]
-      },
-      {
-        "description": "Transaction w/ invalid scripts",
-        "exception": "Invalid or non-support script",
-        "incomplete": true,
-        "txHex": "010000000100000000171a0000e028f2000000000050178500000000000d0000000e000000000000002009f691b2263260e71f363d1db51ff3100d285956a40cc0e4f8c8c2c4a80559b1ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
-      },
-      {
-        "description": "Complete transaction w/ non-standard inputs",
-        "exception": "Invalid or non-support script",
-        "incomplete": true,
-        "txHex": "010000000100000000171a0000e028f2000000000050178500000000000d0000000e00000000000000201ff691b2263260e71f363d1db51ff3100d285956a40cc0e4f8c8c2c4a80559b1ffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000"
       }
     ],
     "sign": [
@@ -608,28 +596,6 @@
               {
                 "keyPair": "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx",
                 "network": "testnet",
-                "throws": true
-              }
-            ]
-          }
-        ],
-        "outputs": [
-          {
-            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
-            "value": 1000
-          }
-        ]
-      },
-      {
-        "exception": "PrevOutScript invalid",
-        "inputs": [
-          {
-            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            "vout": 0,
-            "prevTxScript": "OP_RETURN 06deadbeef03f895a2ad89fb6d696497af486cb7c644a27aa568c7a18dd06113401115185474",
-            "signs": [
-              {
-                "keyPair": "KzrA86mCVMGWnLGBQu9yzQa32qbxb5dvSK4XhyjjGAWSBKYX4rHx",
                 "throws": true
               }
             ]

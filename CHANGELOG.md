@@ -18,3 +18,15 @@
 ## 1.0.3
 
 - Fix bug testnet BIP32
+
+## 1.0.4
+
+- Add transaction to index
+
+## 1.0.5
+
+- Add ECPair to index
+
+## 1.0.6
+
+- Accept non-standard payment

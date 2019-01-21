@@ -123,8 +123,6 @@ class TransactionBuilder {
       input.pubkeys = [ourPubKey];
       input.signScript = prevOutScript;
     }
-    if (input.prevOutScript != null && !isValidOutput(input.prevOutScript))
-      throw ArgumentError('PrevOutScript invalid');
     var signatureHash =
         this._tx.hashForSignature(vin, input.signScript, hashType);
     // enforce in order signing of public keys

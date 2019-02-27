@@ -62,7 +62,7 @@ class HDWallet {
   }
 
   Uint8List sign(String message) {
-    Uint8List messageHash = magicHash(message);
+    Uint8List messageHash = magicHash(message,network);
     return _bip32.sign(messageHash);
   }
 
@@ -103,12 +103,12 @@ class Wallet {
   }
 
   Uint8List sign(String message) {
-    Uint8List messageHash = magicHash(message);
+    Uint8List messageHash = magicHash(message,network);
     return _keyPair.sign(messageHash);
   }
 
   bool verify({String message, Uint8List signature}) {
-    Uint8List messageHash = magicHash(message);
+    Uint8List messageHash = magicHash(message,network);
     return _keyPair.verify(messageHash, signature);
   }
 }

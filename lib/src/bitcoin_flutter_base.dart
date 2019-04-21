@@ -82,7 +82,7 @@ class HDWallet {
     return HDWallet(
         bip32: wallet, p2pkh: p2pkh, network: network, seed: seedHex);
   }
-  
+
   factory HDWallet.fromBase58(String xpub, {NetworkType network}) {
     network = network ?? bitcoin;
     final wallet = bip32.BIP32.fromBase58(xpub, bip32.NetworkType(
@@ -119,13 +119,15 @@ class Wallet {
 
   String get address => _p2pkh != null ? _p2pkh.data.address : null;
 
-  Wallet(this._keyPair, this._p2pkh);
+  NetworkType network;
+
+  Wallet(this._keyPair, this._p2pkh, this.network);
 
   factory Wallet.random([NetworkType network]) {
     final _keyPair = ECPair.makeRandom(network: network);
     final _p2pkh = new P2PKH(
         data: new P2PKHData(pubkey: _keyPair.publicKey), network: network);
-    return Wallet(_keyPair, _p2pkh);
+    return Wallet(_keyPair, _p2pkh, network);
   }
 
   factory Wallet.fromWIF(String wif, [NetworkType network]) {
@@ -133,16 +135,16 @@ class Wallet {
     final _keyPair = ECPair.fromWIF(wif, network: network);
     final _p2pkh = new P2PKH(
         data: new P2PKHData(pubkey: _keyPair.publicKey), network: network);
-    return Wallet(_keyPair, _p2pkh);
+    return Wallet(_keyPair, _p2pkh, network);
   }
 
   Uint8List sign(String message) {
-    Uint8List messageHash = magicHash(message,network);
+    Uint8List messageHash = magicHash(message, network);
     return _keyPair.sign(messageHash);
   }
 
   bool verify({String message, Uint8List signature}) {
-    Uint8List messageHash = magicHash(message,network);
+    Uint8List messageHash = magicHash(message, network);
     return _keyPair.verify(messageHash, signature);
   }
 }

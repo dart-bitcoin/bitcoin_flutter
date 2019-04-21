@@ -30,3 +30,8 @@
 ## 1.0.6
 
 - Accept non-standard payment
+
+## 1.0.7
+
+- Try catch getter privKey, base58Priv, wif
+- Possible to create a neutered HD Wallet

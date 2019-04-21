@@ -16,15 +16,37 @@ class HDWallet {
   String seed;
   NetworkType network;
 
-  String get privKey => _bip32 != null ? HEX.encode(_bip32.privateKey) : null;
+
+  String get privKey {
+    if (_bip32 == null) return null;
+    try {
+      return HEX.encode(_bip32.privateKey);
+    } catch (_) {
+      return null;
+    }
+  }
 
   String get pubKey => _bip32 != null ? HEX.encode(_bip32.publicKey) : null;
 
-  String get base58Priv => _bip32 != null ? _bip32.toBase58() : null;
+  String get base58Priv {
+    if (_bip32 == null) return null;
+    try {
+      return _bip32.toBase58();
+    } catch (_) {
+      return null;
+    }
+  }
 
   String get base58 => _bip32 != null ? _bip32.neutered().toBase58() : null;
 
-  String get wif => _bip32 != null ? _bip32.toWIF() : null;
+  String get wif {
+    if (_bip32 == null) return null;
+    try {
+      return _bip32.toWIF();
+    } catch (_) {
+      return null;
+    }
+  }
 
   String get address => _p2pkh != null ? _p2pkh.data.address : null;
 
@@ -59,6 +81,18 @@ class HDWallet {
         data: new P2PKHData(pubkey: wallet.publicKey), network: network);
     return HDWallet(
         bip32: wallet, p2pkh: p2pkh, network: network, seed: seedHex);
+  }
+  
+  factory HDWallet.fromBase58(String xpub, {NetworkType network}) {
+    network = network ?? bitcoin;
+    final wallet = bip32.BIP32.fromBase58(xpub, bip32.NetworkType(
+        bip32: bip32.Bip32Type(
+            public: network.bip32.public, private: network.bip32.private),
+        wif: network.wif));
+    final p2pkh = new P2PKH(
+        data: new P2PKHData(pubkey: wallet.publicKey), network: network);
+    return HDWallet(
+        bip32: wallet, p2pkh: p2pkh, network: network, seed: null);
   }
 
   Uint8List sign(String message) {

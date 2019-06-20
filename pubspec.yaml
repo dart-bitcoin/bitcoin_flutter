@@ -8,7 +8,7 @@ environment:
   sdk: '>=2.0.0-dev.58.0 <3.0.0'
 
 dependencies:
-  bip39: ^1.0.3
+  bip39_multi: ^1.0.4
   bip32: ^1.0.5
   pointycastle: ^1.0.0-rc2
   hex: ^0.1.2

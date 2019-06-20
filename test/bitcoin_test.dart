@@ -1,6 +1,6 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:test/test.dart';
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:bip39_multi/bip39_multi.dart' as bip39;
 
 void main() {
   group('bitcoin-dart (HDWallet)', () {

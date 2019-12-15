@@ -25,6 +25,7 @@ class PaymentData {
   }
 }
 
+// Backward compatibility
 @Deprecated('The "P2PKHData" class is deprecated. Use the "PaymentData" package instead.')
 class P2PKHData extends PaymentData {
   P2PKHData({address, hash, output, pubkey, input, signature, witness}) :

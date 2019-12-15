@@ -14,7 +14,7 @@ main() {
   group('(valid case)', () {
     (fixtures["valid"] as List<dynamic>).forEach((f) {
       test(f['description'] + ' as expected', () {
-        final arguments = _preformP2WPKH(f['arguments']);
+        final arguments = _preformPaymentData(f['arguments']);
         final p2wpkh = new P2WPKH(data: arguments);
         if (arguments.address == null) {
           expect(p2wpkh.data.address, f['expected']['address']);
@@ -44,7 +44,7 @@ main() {
   group('(invalid case)', () {
     (fixtures["invalid"] as List<dynamic>).forEach((f) {
       test('throws ' + f['exception'] + (f['description'] != null ? ('for ' + f['description']) : ''), () {
-        final arguments = _preformP2WPKH(f['arguments']);
+        final arguments = _preformPaymentData(f['arguments']);
         try {
           expect(new P2WPKH(data: arguments), isArgumentError);
         } catch(err) {
@@ -56,7 +56,7 @@ main() {
   });
 }
 
-PaymentData _preformP2WPKH(dynamic x) {
+PaymentData _preformPaymentData(dynamic x) {
   final address   = x['address'];
   final hash      = x['hash'] != null ? HEX.decode(x['hash']) : null;
   final input     = x['input'] != null ? bscript.fromASM(x['input']) : null;

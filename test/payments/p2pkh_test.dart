@@ -6,12 +6,13 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:hex/hex.dart';
 import 'dart:typed_data';
+
 main() {
   final fixtures = json.decode(new File("./test/fixtures/p2pkh.json").readAsStringSync(encoding: utf8));
   group('(valid case)', () {
     (fixtures["valid"] as List<dynamic>).forEach((f) {
       test(f['description'] + ' as expected', () {
-        final arguments = _preformP2PKH(f['arguments']);
+        final arguments = _preformPaymentData(f['arguments']);
         final p2pkh = new P2PKH(data: arguments);
         if (arguments.address == null) {
           expect(p2pkh.data.address, f['expected']['address']);
@@ -37,7 +38,7 @@ main() {
   group('(invalid case)', () {
     (fixtures["invalid"] as List<dynamic>).forEach((f) {
       test('throws ' + f['exception'] + (f['description'] != null ? ('for ' + f['description']) : ''), () {
-        final arguments = _preformP2PKH(f['arguments']);
+        final arguments = _preformPaymentData(f['arguments']);
         try {
           expect(new P2PKH(data: arguments), isArgumentError);
         } catch(err) {
@@ -48,7 +49,8 @@ main() {
     });
   });
 }
-PaymentData _preformP2PKH(dynamic x) {
+
+PaymentData _preformPaymentData(dynamic x) {
   final address = x['address'];
   final hash = x['hash'] != null ? HEX.decode(x['hash']) : null;
   final input = x['input'] != null ? bscript.fromASM(x['input']) : null;
@@ -57,6 +59,7 @@ PaymentData _preformP2PKH(dynamic x) {
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
   return new PaymentData(address: address, hash: hash, input: input, output: output, pubkey: pubkey, signature: signature);
 }
+
 String _toString(dynamic x) {
   if (x == null) {
     return null;

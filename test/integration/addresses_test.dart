@@ -1,7 +1,7 @@
 import '../../lib/src/models/networks.dart' as NETWORKS;
 import '../../lib/src/ecpair.dart' show ECPair;
-import '../../lib/src/payments/index.dart' show PaymentData, P2PKHData;
-import '../../lib/src/payments/p2pkh.dart' show P2PKH;
+import '../../lib/src/payments/index.dart' show PaymentData;
+import '../../lib/src/payments/p2pkh.dart' show P2PKH, P2PKHData;
 import '../../lib/src/payments/p2wpkh.dart' show P2WPKH;
 import "package:pointycastle/digests/sha256.dart";
 import 'dart:convert';
@@ -22,18 +22,18 @@ main() {
   group('bitcoinjs-lib (addresses)', () {
     test('can generate a random address', () {
       final keyPair = ECPair.makeRandom(rng: rng);
-      final address = new P2PKH(data: new P2PKHData(pubkey: keyPair.publicKey)).data.address;
+      final address = new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey)).data.address;
       expect(address, '1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64');
     });
     test('can generate an address from a SHA256 hash', () {
       final hash = new SHA256Digest().process(utf8.encode("correct horse battery staple"));
       final keyPair = ECPair.fromPrivateKey(hash);
-      final address = new P2PKH(data: new P2PKHData(pubkey: keyPair.publicKey)).data.address;
+      final address = new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey)).data.address;
       expect(address, '1C7zdTfnkzmr13HfA2vNm5SJYRK6nEKyq8');
     });
     test('can import an address via WIF', () {
       final keyPair = ECPair.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
-      final address = new P2PKH(data: new P2PKHData(pubkey: keyPair.publicKey)).data.address;
+      final address = new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey)).data.address;
       expect(address, '19AAjaTUbRjQCMuVczepkoPswiZRhjtg31');
     });
     test('can generate a Testnet address', () {

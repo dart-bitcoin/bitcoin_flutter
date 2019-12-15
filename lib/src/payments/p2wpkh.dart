@@ -5,13 +5,14 @@ import 'package:bech32/bech32.dart';
 
 import '../crypto.dart';
 import '../models/networks.dart';
+import '../payments/index.dart' show PaymentData;
 import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
 
 final EMPTY_SCRIPT = Uint8List.fromList([]);
 
 class P2WPKH {
-  P2WPKHData data;
+  PaymentData data;
   NetworkType network;
   P2WPKH({@required data, network}) {
     this.network = network ?? bitcoin;
@@ -99,29 +100,5 @@ class P2WPKH {
     } on InvalidWitnessVersion {
       throw new ArgumentError('Invalid witness address version');
     }
-  }
-}
-
-class P2WPKHData {
-  String address;
-  Uint8List hash;
-  Uint8List output;
-  Uint8List signature;
-  Uint8List pubkey;
-  Uint8List input;
-  List<Uint8List> witness;
-
-  P2WPKHData(
-      {this.address,
-      this.hash,
-      this.output,
-      this.pubkey,
-      this.input,
-      this.signature,
-      this.witness});
-
-  @override
-  String toString() {
-    return 'P2WPKHData{address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input, witness: $witness}';
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:hex/hex.dart';
-import 'payments/p2pkh.dart' show P2PKH, P2PKHData;
+import 'payments/index.dart' show PaymentData;
+import 'payments/p2pkh.dart' show P2PKH;
 import 'crypto.dart' as bcrypto;
 import 'utils/check_types.dart';
 import 'utils/script.dart' as bscript;
@@ -212,6 +213,7 @@ class Transaction {
     }).toList();
     return tx;
   }
+
   factory Transaction.fromBuffer(Uint8List buffer) {
     var offset = 0;
     ByteData bytes = buffer.buffer.asByteData();
@@ -268,6 +270,7 @@ class Transaction {
       throw new ArgumentError('Transaction has unexpected data');
     return tx;
   }
+
   factory Transaction.fromHex(String hex) {
     return Transaction.fromBuffer(HEX.decode(hex));
   }
@@ -283,6 +286,7 @@ class Input {
   Uint8List prevOutScript;
   List<Uint8List> pubkeys;
   List<Uint8List> signatures;
+
   Input(
       {this.hash,
       this.index,
@@ -301,16 +305,18 @@ class Input {
     if (this.value != null && !isShatoshi(this.value))
       throw ArgumentError("Invalid ouput value");
   }
+
   factory Input.expandInput(Uint8List scriptSig) {
     if (_isP2PKHInput(scriptSig) == false) {
       return new Input(prevOutScript: scriptSig);
     }
-    P2PKH p2pkh = new P2PKH(data: new P2PKHData(input: scriptSig));
+    P2PKH p2pkh = new P2PKH(data: new PaymentData(input: scriptSig));
     return new Input(
         prevOutScript: p2pkh.data.output,
         pubkeys: [p2pkh.data.pubkey],
         signatures: [p2pkh.data.signature]);
   }
+
   factory Input.clone(Input input) {
     return new Input(
       hash: input.hash != null ? Uint8List.fromList(input.hash) : null,
@@ -331,6 +337,7 @@ class Input {
           : null,
     );
   }
+
   @override
   String toString() {
     return 'Input{hash: $hash, index: $index, sequence: $sequence, value: $value, script: $script, signScript: $signScript, prevOutScript: $prevOutScript, pubkeys: $pubkeys, signatures: $signatures}';
@@ -343,6 +350,7 @@ class Output {
   Uint8List valueBuffer;
   List<Uint8List> pubkeys;
   List<Uint8List> signatures;
+
   Output(
       {this.script,
       this.value,
@@ -352,16 +360,18 @@ class Output {
     if (value != null && !isShatoshi(value))
       throw ArgumentError("Invalid ouput value");
   }
+
   factory Output.expandOutput(Uint8List script, Uint8List ourPubKey) {
     if (_isP2PKHOutput(script) == false) {
       throw ArgumentError("Unsupport script!");
     }
     // does our hash160(pubKey) match the output scripts?
-    Uint8List pkh1 = new P2PKH(data: new P2PKHData(output: script)).data.hash;
+    Uint8List pkh1 = new P2PKH(data: new PaymentData(output: script)).data.hash;
     Uint8List pkh2 = bcrypto.hash160(ourPubKey);
     if (pkh1 != pkh2) throw ArgumentError("Hash mismatch!");
     return new Output(pubkeys: [ourPubKey], signatures: [null]);
   }
+
   factory Output.clone(Output output) {
     return new Output(
       script: output.script != null ? Uint8List.fromList(output.script) : null,

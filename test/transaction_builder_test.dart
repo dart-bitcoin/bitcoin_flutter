@@ -8,7 +8,9 @@ import '../lib/src/ecpair.dart';
 import '../lib/src/transaction.dart';
 import '../lib/src/transaction_builder.dart';
 import '../lib/src/utils/script.dart' as bscript;
+import '../lib/src/payments/index.dart' show PaymentData;
 import '../lib/src/payments/p2pkh.dart';
+
 final NETWORKS = {
   'bitcoin': bitcoin,
   'testnet': testnet
@@ -166,7 +168,7 @@ main() {
       TransactionBuilder txb;
       setUp(() {txb = new TransactionBuilder();});
       test('accepts an address string and value', () {
-        final address = new P2PKH(data: new P2PKHData(pubkey: keyPair.publicKey)).data.address;
+        final address = new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey)).data.address;
         final vout = txb.addOutput(address, 1000);
         expect(vout, 0);
         final txout = txb.tx.outs[0];

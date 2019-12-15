@@ -1,3 +1,4 @@
+import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:bitcoin_flutter/src/payments/p2pkh.dart';
 import 'package:test/test.dart';
 import 'package:bitcoin_flutter/src/utils/script.dart' as bscript;
@@ -47,14 +48,14 @@ main() {
     });
   });
 }
-P2PKHData _preformP2PKH(dynamic x) {
+PaymentData _preformP2PKH(dynamic x) {
   final address = x['address'];
   final hash = x['hash'] != null ? HEX.decode(x['hash']) : null;
   final input = x['input'] != null ? bscript.fromASM(x['input']) : null;
   final output = x['output'] != null ? bscript.fromASM(x['output']) : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
   final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
-  return new P2PKHData(address: address, hash: hash, input: input, output: output, pubkey: pubkey, signature: signature);
+  return new PaymentData(address: address, hash: hash, input: input, output: output, pubkey: pubkey, signature: signature);
 }
 String _toString(dynamic x) {
   if (x == null) {

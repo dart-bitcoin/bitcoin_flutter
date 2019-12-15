@@ -5,11 +5,12 @@ import 'package:bs58check/bs58check.dart' as bs58check;
 
 import '../crypto.dart';
 import '../models/networks.dart';
+import '../payments/index.dart' show PaymentData;
 import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
 
 class P2PKH {
-  P2PKHData data;
+  PaymentData data;
   NetworkType network;
   P2PKH({@required data, network}) {
     this.network = network ?? bitcoin;
@@ -86,27 +87,6 @@ class P2PKH {
       throw new ArgumentError('Invalid version or Network mismatch');
     data.hash = payload.sublist(1);
     if (data.hash.length != 20) throw new ArgumentError('Invalid address');
-  }
-}
-
-class P2PKHData {
-  String address;
-  Uint8List hash;
-  Uint8List output;
-  Uint8List signature;
-  Uint8List pubkey;
-  Uint8List input;
-  P2PKHData(
-      {this.address,
-      this.hash,
-      this.output,
-      this.pubkey,
-      this.input,
-      this.signature});
-
-  @override
-  String toString() {
-    return 'P2PKHData{address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input}';
   }
 }
 

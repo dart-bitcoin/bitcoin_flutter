@@ -5,11 +5,12 @@ import 'package:bs58check/bs58check.dart' as bs58check;
 
 import '../crypto.dart';
 import '../models/networks.dart';
+import '../payments/index.dart' show PaymentData;
 import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
 
 class P2PKH {
-  P2PKHData data;
+  PaymentData data;
   NetworkType network;
   P2PKH({@required data, network}) {
     this.network = network ?? bitcoin;
@@ -89,27 +90,6 @@ class P2PKH {
   }
 }
 
-class P2PKHData {
-  String address;
-  Uint8List hash;
-  Uint8List output;
-  Uint8List signature;
-  Uint8List pubkey;
-  Uint8List input;
-  P2PKHData(
-      {this.address,
-      this.hash,
-      this.output,
-      this.pubkey,
-      this.input,
-      this.signature});
-
-  @override
-  String toString() {
-    return 'P2PKHData{address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input}';
-  }
-}
-
 isValidOutput(Uint8List data) {
   return data.length == 25 &&
       data[0] == OPS['OP_DUP'] &&
@@ -117,4 +97,19 @@ isValidOutput(Uint8List data) {
       data[2] == 0x14 &&
       data[23] == OPS['OP_EQUALVERIFY'] &&
       data[24] == OPS['OP_CHECKSIG'];
+}
+
+// Backward compatibility
+@Deprecated('The "P2PKHData" class is deprecated. Use the "PaymentData" package instead.')
+class P2PKHData extends PaymentData {
+  P2PKHData({address, hash, output, pubkey, input, signature, witness}) :
+    super(
+        address: address,
+        hash: hash,
+        output: output,
+        pubkey: pubkey,
+        input: input,
+        signature: signature,
+        witness: witness
+    );
 }

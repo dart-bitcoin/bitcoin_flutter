@@ -5,6 +5,7 @@ import 'utils/script.dart' as bscript;
 import 'ecpair.dart';
 import 'models/networks.dart';
 import 'transaction.dart';
+import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart';
 
 class TransactionBuilder {
@@ -282,14 +283,14 @@ Uint8List addressToOutputScript(String address, [NetworkType nw]) {
   if (payload.length < 21) throw new ArgumentError(address + ' is too short');
   if (payload.length > 21) throw new ArgumentError(address + ' is too long');
   P2PKH p2pkh =
-      new P2PKH(data: new P2PKHData(address: address), network: network);
+      new P2PKH(data: new PaymentData(address: address), network: network);
   return p2pkh.data.output;
 }
 
 Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType nw]) {
   NetworkType network = nw ?? bitcoin;
   P2PKH p2pkh =
-      new P2PKH(data: new P2PKHData(pubkey: pubkey), network: network);
+      new P2PKH(data: new PaymentData(pubkey: pubkey), network: network);
   return p2pkh.data.output;
 }
 
@@ -297,7 +298,7 @@ Uint8List toInputScript(Uint8List pubkey, Uint8List signature,
     [NetworkType nw]) {
   NetworkType network = nw ?? bitcoin;
   P2PKH p2pkh = new P2PKH(
-      data: new P2PKHData(pubkey: pubkey, signature: signature),
+      data: new PaymentData(pubkey: pubkey, signature: signature),
       network: network);
   return p2pkh.data.input;
 }

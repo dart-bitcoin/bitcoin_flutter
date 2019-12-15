@@ -4,6 +4,7 @@ import 'package:bitcoin_flutter/src/utils/magic_hash.dart';
 import 'package:hex/hex.dart';
 import 'package:bip32/bip32.dart' as bip32;
 import 'models/networks.dart';
+import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart';
 import 'ecpair.dart';
 import 'package:meta/meta.dart';
@@ -59,14 +60,14 @@ class HDWallet {
   HDWallet derivePath(String path) {
     final bip32 = _bip32.derivePath(path);
     final p2pkh = new P2PKH(
-        data: new P2PKHData(pubkey: bip32.publicKey), network: network);
+        data: new PaymentData(pubkey: bip32.publicKey), network: network);
     return HDWallet(bip32: bip32, p2pkh: p2pkh, network: network);
   }
 
   HDWallet derive(int index) {
     final bip32 = _bip32.derive(index);
     final p2pkh = new P2PKH(
-        data: new P2PKHData(pubkey: bip32.publicKey), network: network);
+        data: new PaymentData(pubkey: bip32.publicKey), network: network);
     return HDWallet(bip32: bip32, p2pkh: p2pkh, network: network);
   }
 
@@ -78,7 +79,7 @@ class HDWallet {
             public: network.bip32.public, private: network.bip32.private),
         wif: network.wif));
     final p2pkh = new P2PKH(
-        data: new P2PKHData(pubkey: wallet.publicKey), network: network);
+        data: new PaymentData(pubkey: wallet.publicKey), network: network);
     return HDWallet(
         bip32: wallet, p2pkh: p2pkh, network: network, seed: seedHex);
   }
@@ -90,7 +91,7 @@ class HDWallet {
             public: network.bip32.public, private: network.bip32.private),
         wif: network.wif));
     final p2pkh = new P2PKH(
-        data: new P2PKHData(pubkey: wallet.publicKey), network: network);
+        data: new PaymentData(pubkey: wallet.publicKey), network: network);
     return HDWallet(
         bip32: wallet, p2pkh: p2pkh, network: network, seed: null);
   }
@@ -126,7 +127,7 @@ class Wallet {
   factory Wallet.random([NetworkType network]) {
     final _keyPair = ECPair.makeRandom(network: network);
     final _p2pkh = new P2PKH(
-        data: new P2PKHData(pubkey: _keyPair.publicKey), network: network);
+        data: new PaymentData(pubkey: _keyPair.publicKey), network: network);
     return Wallet(_keyPair, _p2pkh, network);
   }
 
@@ -134,7 +135,7 @@ class Wallet {
     network = network ?? bitcoin;
     final _keyPair = ECPair.fromWIF(wif, network: network);
     final _p2pkh = new P2PKH(
-        data: new P2PKHData(pubkey: _keyPair.publicKey), network: network);
+        data: new PaymentData(pubkey: _keyPair.publicKey), network: network);
     return Wallet(_keyPair, _p2pkh, network);
   }
 

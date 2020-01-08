@@ -1,5 +1,5 @@
 
-## master
+## 1.1.0
 
 - Add PaymentData, P2PKHData to be deprecated, will remove next version
 - Support p2wpkh

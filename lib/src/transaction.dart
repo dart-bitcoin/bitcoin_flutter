@@ -16,6 +16,7 @@ const SIGHASH_ANYONECANPAY = 0x80;
 const ADVANCED_TRANSACTION_MARKER = 0x00;
 const ADVANCED_TRANSACTION_FLAG = 0x01;
 final EMPTY_SCRIPT = Uint8List.fromList([]);
+final EMPTY_WITNESS = new List<Uint8List>();
 final ZERO = HEX
     .decode('0000000000000000000000000000000000000000000000000000000000000000');
 final ONE = HEX
@@ -30,12 +31,14 @@ class Transaction {
   List<Input> ins = [];
   List<Output> outs = [];
   Transaction();
+
   int addInput(Uint8List hash, int index, [int sequence, Uint8List scriptSig]) {
     ins.add(new Input(
         hash: hash,
         index: index,
         sequence: sequence ?? DEFAULT_SEQUENCE,
-        script: scriptSig ?? EMPTY_SCRIPT));
+        script: scriptSig ?? EMPTY_SCRIPT,
+        witness: EMPTY_WITNESS));
     return ins.length - 1;
   }
 
@@ -44,8 +47,19 @@ class Transaction {
     return outs.length - 1;
   }
 
+  bool hasWitnesses() {
+    var witness = ins.firstWhere(
+        (input) => input.witness != null && input.witness.length != 0,
+                   orElse: () => null);
+    return witness != null;
+  }
+
   setInputScript(int index, Uint8List scriptSig) {
     ins[index].script = scriptSig;
+  }
+
+  setWitness(int index, List<Uint8List> witness) {
+    ins[index].witness = witness;
   }
 
   hashForSignature(int inIndex, Uint8List prevOutScript, int hashType) {
@@ -107,16 +121,37 @@ class Transaction {
     return bcrypto.hash256(buffer);
   }
 
-  int virtualSize() {
-    return 8 +
+  _byteLength(_ALLOW_WITNESS) {
+    var hasWitness = _ALLOW_WITNESS && hasWitnesses();
+    return (hasWitness ? 10 : 8)  +
         varuint.encodingLength(ins.length) +
         varuint.encodingLength(outs.length) +
         ins.fold(0, (sum, input) => sum + 40 + varSliceSize(input.script)) +
-        outs.fold(0, (sum, output) => sum + 8 + varSliceSize(output.script));
+        outs.fold(0, (sum, output) => sum + 8 + varSliceSize(output.script)) +
+        (hasWitness ? ins.fold(0, (sum, input) => sum + vectorSize(input.witness)) : 0);
+  }
+
+  int vectorSize(List<Uint8List> someVector) {
+    var length = someVector.length;
+    return varuint.encodingLength(length) + someVector.fold(0, (sum, witness) => sum + varSliceSize(witness));
+  }
+
+  int weight() {
+    var base = _byteLength(false);
+    var total = _byteLength(true);
+    return base * 3 + total;
+  }
+
+  int byteLength() {
+    return _byteLength(true);
+  }
+
+  int virtualSize() {
+    return (weight() / 4).ceil();
   }
 
   Uint8List toBuffer([Uint8List buffer, int initialOffset]) {
-    return this._toBuffer(buffer, initialOffset);
+    return this._toBuffer(buffer, initialOffset, true);
   }
 
   String toHex() {
@@ -136,20 +171,29 @@ class Transaction {
   }
 
   Uint8List getHash() {
-    return bcrypto.hash256(_toBuffer());
+    // if (isCoinbase()) return Uint8List.fromList(List.generate(32, (i) => 0));
+    return bcrypto.hash256(_toBuffer(null, null, false));
   }
 
   String getId() {
     return HEX.encode(getHash().reversed.toList());
   }
 
-  _toBuffer([Uint8List buffer, initialOffset]) {
-    if (buffer == null) buffer = new Uint8List(virtualSize());
+  _toBuffer([Uint8List buffer, initialOffset, bool _ALLOW_WITNESS=false]) {
+    // _ALLOW_WITNESS is used to separate witness part when calculating tx id
+    if (buffer == null) buffer = new Uint8List(_byteLength(_ALLOW_WITNESS));
+
     var bytes = buffer.buffer.asByteData();
     var offset = initialOffset ?? 0;
+
     writeSlice(slice) {
       buffer.setRange(offset, offset + slice.length, slice);
       offset += slice.length;
+    }
+
+    writeUInt8(i) {
+      bytes.setUint8(offset, i);
+      offset++;
     }
 
     writeUInt32(i) {
@@ -177,16 +221,30 @@ class Transaction {
       writeSlice(slice);
     }
 
+    writeVector(vector) {
+      writeVarInt(vector.length);
+      vector.forEach((buf) { writeVarSlice(buf); });
+    }
+
+    // Start writeBuffer
     writeInt32(version);
+
+    if (_ALLOW_WITNESS && hasWitnesses()) {
+      writeUInt8(ADVANCED_TRANSACTION_MARKER);
+      writeUInt8(ADVANCED_TRANSACTION_FLAG);
+    }
+
     writeVarInt(this.ins.length);
+
     ins.forEach((txIn) {
       writeSlice(txIn.hash);
       writeUInt32(txIn.index);
       writeVarSlice(txIn.script);
       writeUInt32(txIn.sequence);
     });
-    varuint.encode(outs.length, buffer, offset);
-    offset += varuint.encodingLength(outs.length);
+
+    writeVarInt(this.outs.length);
+
     outs.forEach((txOut) {
       if (txOut.valueBuffer == null) {
         writeUInt64(txOut.value);
@@ -195,9 +253,17 @@ class Transaction {
       }
       writeVarSlice(txOut.script);
     });
+
+    if (_ALLOW_WITNESS && hasWitnesses()) {
+      ins.forEach((txInt) { writeVector(txInt.witness); });
+    }
+
     writeUInt32(this.locktime);
+    // End writeBuffer
+
     // avoid slicing unless necessary
     if (initialOffset != null) return buffer.sublist(initialOffset, offset);
+
     return buffer;
   }
 
@@ -215,11 +281,14 @@ class Transaction {
   }
 
   factory Transaction.fromBuffer(Uint8List buffer) {
+
     var offset = 0;
     ByteData bytes = buffer.buffer.asByteData();
-    Uint8List readSlice(n) {
-      offset += n;
-      return buffer.sublist(offset - n, offset);
+
+    int readUInt8() {
+      final i = bytes.getUint8(offset);
+      offset++;
+      return i;
     }
 
     int readUInt32() {
@@ -240,6 +309,11 @@ class Transaction {
       return i;
     }
 
+    Uint8List readSlice(n) {
+      offset += n;
+      return buffer.sublist(offset - n, offset);
+    }
+
     int readVarInt() {
       final vi = varuint.decode(buffer, offset);
       offset += varuint.encodingLength(vi);
@@ -250,8 +324,27 @@ class Transaction {
       return readSlice(readVarInt());
     }
 
+    List<Uint8List> readVector() {
+      var count = readVarInt();
+      List<Uint8List> vector = [];
+      for (var i = 0; i < count; ++i) {
+        vector.add(readVarSlice());
+      }
+      return vector;
+    }
+
     final tx = new Transaction();
     tx.version = readInt32();
+
+    final marker = readUInt8();
+    final flag = readUInt8();
+
+    var hasWitnesses = false;
+    if (marker == ADVANCED_TRANSACTION_MARKER && flag == ADVANCED_TRANSACTION_FLAG) {
+      hasWitnesses = true;
+    } else {
+      offset -= 2; // Reset offset if not segwit tx
+    }
 
     final vinLen = readVarInt();
     for (var i = 0; i < vinLen; ++i) {
@@ -261,13 +354,23 @@ class Transaction {
           script: readVarSlice(),
           sequence: readUInt32()));
     }
+
     final voutLen = readVarInt();
     for (var i = 0; i < voutLen; ++i) {
       tx.outs.add(new Output(value: readUInt64(), script: readVarSlice()));
     }
+
+    if (hasWitnesses) {
+      for (var i = 0; i < vinLen; ++i) {
+        tx.ins[i].witness = readVector();
+      }
+    }
+
     tx.locktime = readUInt32();
+
     if (offset != buffer.length)
       throw new ArgumentError('Transaction has unexpected data');
+
     return tx;
   }
 
@@ -286,6 +389,7 @@ class Input {
   Uint8List prevOutScript;
   List<Uint8List> pubkeys;
   List<Uint8List> signatures;
+  List<Uint8List> witness;
 
   Input(
       {this.hash,
@@ -295,7 +399,8 @@ class Input {
       this.value,
       this.prevOutScript,
       this.pubkeys,
-      this.signatures}) {
+      this.signatures,
+      this.witness}) {
     if (this.hash != null && !isHash256bit(this.hash))
       throw new ArgumentError("Invalid input hash");
     if (this.index != null && !isUint(this.index, 32))

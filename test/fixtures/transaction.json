@@ -265,6 +265,72 @@
       "coinbase": false,
       "virtualSize": 192,
       "weight": 768
+    },
+    {
+      "description": "P2WPKH",
+      "id": "10bbdf7e9301bc21f1da8684f25fd66bc1314904c30da25a8ebf967c58c89269",
+      "hash": "6992c8587c96bf8e5aa20dc3044931c16bd65ff28486daf121bc01937edfbb10",
+      "hex": "010000000133defbe3e28860007ff3e21222774c220cb35d554fa3e3796d25bf8ee983e1080000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+      "whex": "0100000000010133defbe3e28860007ff3e21222774c220cb35d554fa3e3796d25bf8ee983e1080000000000ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac0248304502210097c3006f0b390982eb47f762b2853773c6cedf83668a22d710f4c13c4fd6b15502205e26ef16a81fc818a37f3a34fc6d0700e61100ea6c6773907c9c046042c440340121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b00000000",
+      "raw": {
+        "version": 1,
+        "ins": [
+          {
+            "hash": "33defbe3e28860007ff3e21222774c220cb35d554fa3e3796d25bf8ee983e108",
+            "index": 0,
+            "script": "",
+            "witness": [
+              "304502210097c3006f0b390982eb47f762b2853773c6cedf83668a22d710f4c13c4fd6b15502205e26ef16a81fc818a37f3a34fc6d0700e61100ea6c6773907c9c046042c4403401",
+              "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b"
+            ]
+          }
+        ],
+        "outs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      "coinbase": false,
+      "virtualSize": 113,
+      "weight": 450
+    },
+    {
+      "description": "Coinbase transaction w/ witness",
+      "id": "c881f7b084a367b0603abbcb9c5c639318e6166770e3f9b27a1ee3f8b6a16517",
+      "hash": "1765a1b6f8e31e7ab2f9e3706716e61893635c9ccbbb3a60b067a384b0f781c8",
+      "hex": "02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff05022b020101ffffffff02c0cf402500000000232103c6c5964853fd00fb3271ac002831c66825102d223c706ce0ee99e73db3be4aa1ac0000000000000000266a24aa21a9edff828eb21f40ab251d9f107792670aba9299028b894a364fda570f6a089dcfe900000000",
+      "whex": "020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff05022b020101ffffffff02c0cf402500000000232103c6c5964853fd00fb3271ac002831c66825102d223c706ce0ee99e73db3be4aa1ac0000000000000000266a24aa21a9edff828eb21f40ab251d9f107792670aba9299028b894a364fda570f6a089dcfe90120000000000000000000000000000000000000000000000000000000000000000000000000",
+      "raw": {
+        "version": 2,
+        "ins": [
+          {
+            "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "index": 4294967295,
+            "data": "022b020101",
+            "sequence": 4294967295,
+            "witness": [
+              "0000000000000000000000000000000000000000000000000000000000000000"
+            ]
+          }
+        ],
+        "outs": [
+          {
+            "script": "03c6c5964853fd00fb3271ac002831c66825102d223c706ce0ee99e73db3be4aa1 OP_CHECKSIG",
+            "value": 625004480
+          },
+          {
+            "script": "OP_RETURN aa21a9edff828eb21f40ab251d9f107792670aba9299028b894a364fda570f6a089dcfe9",
+            "value": 0
+          }
+        ],
+        "locktime": 0
+      },
+      "coinbase": true,
+      "virtualSize": 156,
+      "weight": 624
     }
   ],
   "hashForSignature": [

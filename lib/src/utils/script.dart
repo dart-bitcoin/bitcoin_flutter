@@ -7,6 +7,7 @@ import 'check_types.dart';
 Map<int, String> REVERSE_OPS = OPS.map((String string, int number) => new MapEntry(number, string));
 final OP_INT_BASE = OPS['OP_RESERVED'];
 final ZERO = Uint8List.fromList([0]);
+
 Uint8List compile(List<dynamic> chunks) {
   final bufferSize = chunks.fold(0, (acc, chunk) {
     if (chunk is int) return acc + 1;
@@ -81,12 +82,15 @@ List<dynamic> decompile(Uint8List buffer) {
   }
   return chunks;
 }
-Uint8List fromASM (String asm) {
+
+Uint8List fromASM(String asm) {
+  if (asm == '') return Uint8List.fromList([]);
   return compile(asm.split(' ').map((chunkStr) {
     if (OPS[chunkStr] != null) return OPS[chunkStr];
     return HEX.decode(chunkStr);
   }).toList());
 }
+
 String toASM (List<dynamic> c) {
   List<dynamic> chunks;
   if (c is Uint8List) {

@@ -5,9 +5,11 @@ import 'package:hex/hex.dart';
 import 'dart:typed_data';
 import '../lib/src/utils/script.dart' as bscript;
 import '../lib/src/transaction.dart';
+
 main() {
   final fixtures = json.decode(new File("test/fixtures/transaction.json").readAsStringSync(encoding: utf8));
   final valids = (fixtures['valid'] as List<dynamic>);
+
   group('Transaction', () {
     group('fromBuffer/fromHex', () {
       valids.forEach(importExport);
@@ -21,28 +23,39 @@ main() {
           }
         });
       });
+
       test('.version should be interpreted as an int32le', () {
         final txHex = 'ffffffff0000ffffffff';
         final tx = Transaction.fromHex(txHex);
         expect(-1, tx.version);
       });
     });
+
     group('toBuffer/toHex', () {
       valids.forEach((f) {
         test('exports ${f['description']} (${f['id']})', () {
-          Transaction actual = fromRaw(f['raw']);
+          Transaction actual = fromRaw(f['raw'], false);
           expect(actual.toHex(), f['hex']);
         });
+        if (f['whex'] != null && f['whex'] != "") {
+          test('exports ${f['description']} (${f['id']}) as witness', () {
+            Transaction actual = fromRaw(f['raw'], true);
+            expect(actual.toHex(), f['whex']);
+          });
+        }
       });
     });
+
     group('weight/virtualSize', () {
       test('computes virtual size', () {
         valids.forEach((f) {
-          final transaction = Transaction.fromHex(f['hex']);
+          final txHex = (f['whex'] != null && f['whex'] != "") ? f['whex'] : f['hex'];
+          final transaction = Transaction.fromHex(txHex);
           expect(transaction.virtualSize(), f['virtualSize']);
         });
       });
     });
+
     group('addInput', ()
     {
       var prevTxHash;
@@ -73,21 +86,25 @@ main() {
         });
       });
     });
+
     test('addOutput returns an index', () {
       final tx = new Transaction();
       expect(tx.addOutput(new Uint8List(0), 0), 0);
       expect(tx.addOutput(new Uint8List(0), 0), 1);
     });
+
     group('getHash/getId', () {
       verify (f) {
         test('should return the id for ${f['id']} (${f['description']})', () {
-        final tx = Transaction.fromHex(f['hex']);
+        final txHex = (f['whex'] != null && f['whex'] != "") ? f['whex'] : f['hex'];
+        final tx = Transaction.fromHex(txHex);
           expect(HEX.encode(tx.getHash()), f['hash']);
           expect(tx.getId(), f['id']);
         });
       }
       valids.forEach(verify);
     });
+
     group('isCoinbase', () {
       verify (f) {
         test('should return ${f['coinbase']} for ${f['id']} (${f['description']})', () {
@@ -97,6 +114,7 @@ main() {
       }
       valids.forEach(verify);
     });
+
     group('hashForSignature', () {
       (fixtures['hashForSignature'] as List<dynamic>).forEach((f) {
         test('should return ${f['hash']} for ${f['description'] != null ? 'case "' + f['description'] + '"' : f['script']}', () {
@@ -108,6 +126,7 @@ main() {
     });
   });
 }
+
 importExport(dynamic f) {
   final id = f['id'] ?? f['hash'];
   final txHex = f['hex'] ?? f['txHex'];
@@ -116,22 +135,29 @@ importExport(dynamic f) {
     expect(actual.toHex(), txHex);
   });
 }
-Transaction fromRaw (raw) {
+
+Transaction fromRaw(raw, [isWitness]) {
   final tx = new Transaction();
   tx.version = raw['version'];
   tx.locktime = raw['locktime'];
 
-  (raw['ins'] as List<dynamic>).forEach((txIn) {
+  (raw['ins'] as List<dynamic>).asMap().forEach((indx, txIn) {
     final txHash = HEX.decode(txIn['hash']);
     var scriptSig;
 
     if (txIn['data'] != null) {
       scriptSig = HEX.decode(txIn['data']);
-    } else if (txIn['script'] != null) {
+    } else if (txIn['script'] != null && txIn['script'] != "") {
       scriptSig = bscript.fromASM(txIn['script']);
     }
     tx.addInput(txHash, txIn['index'], txIn['sequence'], scriptSig);
+
+    if (isWitness) {
+      var witness = (txIn['witness'] as List<dynamic>).map((e) => HEX.decode(e.toString()) as Uint8List).toList();
+      tx.setWitness(indx, witness);
+    }
   });
+
   (raw['outs'] as List<dynamic>).forEach((txOut) {
     var script;
     if (txOut['data'] != null) {
@@ -141,5 +167,6 @@ Transaction fromRaw (raw) {
     }
     tx.addOutput(script, txOut['value']);
   });
+
   return tx;
 }

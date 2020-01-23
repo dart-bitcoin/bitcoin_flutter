@@ -14,6 +14,7 @@ class TransactionBuilder {
   List<Input> _inputs;
   Transaction _tx;
   Map _prevTxSet = {};
+
   TransactionBuilder({NetworkType network, int maximumFeeRate}) {
     this.network = network ?? bitcoin;
     this.maximumFeeRate = maximumFeeRate ?? 2500;
@@ -39,7 +40,7 @@ class TransactionBuilder {
     // Copy inputs
     transaction.ins.forEach((txIn) {
       txb._addInputUnsafe(txIn.hash, txIn.index,
-          new Input(sequence: txIn.sequence, script: txIn.script));
+          new Input(sequence: txIn.sequence, script: txIn.script, witness: txIn.witness));
     });
 
     return txb;

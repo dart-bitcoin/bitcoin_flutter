@@ -9,9 +9,10 @@ import '../payments/index.dart' show PaymentData;
 import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
 
-final EMPTY_SCRIPT = Uint8List.fromList([]);
 
 class P2WPKH {
+  final EMPTY_SCRIPT = Uint8List.fromList([]);
+  
   PaymentData data;
   NetworkType network;
   P2WPKH({@required data, network}) {

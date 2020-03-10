@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import '../src/utils/script.dart' as bscript;
 import 'templates/pubkeyhash.dart' as pubkeyhash;
+import 'templates/pubkey.dart' as pubkey;
 import 'templates/witnesspubkeyhash.dart' as witnessPubKeyHash;
 
 const SCRIPT_TYPES = {
@@ -27,6 +28,7 @@ String classifyInput(Uint8List script) {
   final chunks = bscript.decompile(script);
   if (chunks == null) throw new ArgumentError('Invalid script');
   if (pubkeyhash.inputCheck(chunks)) return SCRIPT_TYPES['P2PKH'];
+  if (pubkey.inputCheck(chunks)) return SCRIPT_TYPES['P2PK'];
   return SCRIPT_TYPES['NONSTANDARD'];
 }
 

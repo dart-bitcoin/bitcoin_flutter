@@ -46,9 +46,11 @@ Uint8List compile(List<dynamic> chunks) {
 }
 
 List<dynamic> decompile(dynamic buffer) {
-  if (buffer is List) return buffer;
-
   List<dynamic> chunks = [];
+
+  if (buffer == null) return chunks;
+  if (buffer is List && buffer.length == 2) return buffer;
+
   var i = 0;
   while (i < buffer.length) {
     final opcode = buffer[i];

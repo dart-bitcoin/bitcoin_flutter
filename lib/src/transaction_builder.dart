@@ -1,6 +1,8 @@
 import 'dart:typed_data';
+import 'package:meta/meta.dart';
 import 'package:hex/hex.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
+import 'package:bech32/bech32.dart';
 import 'utils/script.dart' as bscript;
 import 'ecpair.dart';
 import 'models/networks.dart';
@@ -10,7 +12,6 @@ import 'payments/p2pkh.dart';
 import 'payments/p2wpkh.dart';
 import 'classify.dart';
 
-final EMPTY_WITNESS = new List<Uint8List>();
 
 class TransactionBuilder {
   NetworkType network;
@@ -41,10 +42,8 @@ class TransactionBuilder {
       txb.addOutput(txOut.script, txOut.value);
     });
 
-    // Copy inputs
     transaction.ins.forEach((txIn) {
-      txb._addInputUnsafe(txIn.hash, txIn.index,
-          new Input(sequence: txIn.sequence, script: txIn.script, witness: txIn.witness));
+      txb._addInputUnsafe(txIn.hash, txIn.index, new Input(sequence: txIn.sequence, script: txIn.script, witness: txIn.witness));
     });
 
     // fix some things not possible through the public API
@@ -80,7 +79,7 @@ class TransactionBuilder {
   int addOutput(dynamic data, int value) {
     var scriptPubKey;
     if (data is String) {
-      scriptPubKey = addressToOutputScript(data, network);
+      scriptPubKey = addressToOutputScript(data, this.network);
     } else if (data is Uint8List) {
       scriptPubKey = data;
     } else {
@@ -114,30 +113,68 @@ class TransactionBuilder {
     return _addInputUnsafe(
         hash,
         vout,
-        new Input(
-            sequence: sequence, prevOutScript: prevOutScript, value: value));
-    // derive what we can from the scriptSig
+        new Input(sequence: sequence, prevOutScript: prevOutScript, value: value)
+    );
   }
 
-  sign(int vin, ECPair keyPair, [int hashType]) {
-    if (keyPair.network != null &&
-        keyPair.network.toString().compareTo(network.toString()) != 0)
+  sign({
+    @required int vin,
+    @required ECPair keyPair,
+    Uint8List redeemScript,
+    int witnessValue,
+    Uint8List witnessScript,
+    int hashType
+  }) {
+    if (keyPair.network != null && keyPair.network.toString().compareTo(network.toString()) != 0)
       throw new ArgumentError('Inconsistent network');
-    if (vin >= _inputs.length)
-      throw new ArgumentError('No input at index: $vin');
+    if (vin >= _inputs.length) throw new ArgumentError('No input at index: $vin');
     hashType = hashType ?? SIGHASH_ALL;
-    if (this._needsOutputs(hashType))
-      throw new ArgumentError('Transaction needs outputs');
+    if (this._needsOutputs(hashType)) throw new ArgumentError('Transaction needs outputs');
     final input = _inputs[vin];
     final ourPubKey = keyPair.publicKey;
     if (!_canSign(input)) {
-      Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey);
-      input.signatures = [null];
-      input.pubkeys = [ourPubKey];
-      input.signScript = prevOutScript;
+      if (witnessValue != null ) {
+        input.value = witnessValue;
+      }
+      if (redeemScript != null && witnessScript != null ) {
+        // TODO p2wsh
+      }
+      if (redeemScript != null) {
+        // TODO
+      }
+      if (witnessScript != null) {
+        // TODO
+      }
+      if (input.prevOutScript != null && input.prevOutType != null) {
+        var type = classifyOutput(input.prevOutScript);
+        if (type == SCRIPT_TYPES['P2WPKH']) {
+          input.prevOutType = SCRIPT_TYPES['P2WPKH'];
+          input.hasWitness = true;
+          input.signatures = [null];
+          input.pubkeys = [ourPubKey];
+          input.signScript = new P2PKH(data: new PaymentData(pubkey: ourPubKey), network: this.network).data.output;
+        } else { // DRY CODE
+          Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey);
+          input.prevOutType = SCRIPT_TYPES['P2PKH'];
+          input.signatures = [null];
+          input.pubkeys = [ourPubKey];
+          input.signScript = prevOutScript;
+        }
+      } else {
+        Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey);
+        input.prevOutType = SCRIPT_TYPES['P2PKH'];
+        input.signatures = [null];
+        input.pubkeys = [ourPubKey];
+        input.signScript = prevOutScript;
+      }
     }
-    var signatureHash =
-        this._tx.hashForSignature(vin, input.signScript, hashType);
+    var signatureHash;
+    if (input.hasWitness) {
+      signatureHash = this._tx.hashForWitnessV0(vin, input.signScript, input.value, hashType);
+    } else {
+      signatureHash = this._tx.hashForSignature(vin, input.signScript, hashType);
+    }
+
     // enforce in order signing of public keys
     var signed = false;
     for (var i = 0; i < input.pubkeys.length; i++) {
@@ -175,7 +212,6 @@ class TransactionBuilder {
           _inputs[i].signatures != null &&
           _inputs[i].pubkeys.length != 0 &&
           _inputs[i].signatures.length != 0) {
-        // TODO
         if (_inputs[i].prevOutType == SCRIPT_TYPES['P2PKH']) {
           P2PKH payment = new P2PKH(data: new PaymentData(pubkey: _inputs[i].pubkeys[0], signature: _inputs[i].signatures[0]), network: network);
           tx.setInputScript(i, payment.data.input);
@@ -285,7 +321,7 @@ class TransactionBuilder {
     if (input.prevOutScript == null && options.prevOutScript != null) {
       if (input.pubkeys == null && input.signatures == null) {
         var expanded = Output.expandOutput(options.prevOutScript);
-        if (expanded.pubkeys.isEmpty) {
+        if (expanded.pubkeys != null && !expanded.pubkeys.isEmpty) {
           input.pubkeys = expanded.pubkeys;
           input.signatures = expanded.signatures;
         }
@@ -310,12 +346,26 @@ class TransactionBuilder {
 
 Uint8List addressToOutputScript(String address, [NetworkType nw]) {
   NetworkType network = nw ?? bitcoin;
-  final payload = bs58check.decode(address);
-  if (payload.length < 21) throw new ArgumentError(address + ' is too short');
-  if (payload.length > 21) throw new ArgumentError(address + ' is too long');
-  P2PKH p2pkh =
-      new P2PKH(data: new PaymentData(address: address), network: network);
-  return p2pkh.data.output;
+  var decodeBase58;
+  var decodeBech32;
+  try {
+    decodeBase58 = bs58check.decode(address);
+  } catch (err) {}
+  if (decodeBase58 != null) {
+    // TODO if (decodeBase58.version == network.pubKeyHash)
+    P2PKH p2pkh = new P2PKH(data: new PaymentData(address: address), network: network);
+    return p2pkh.data.output;
+  } else {
+    try {
+      decodeBech32 = segwit.decode(address);
+    } catch (err) {}
+    if (decodeBech32 != null) {
+      if (network.bech32 != decodeBech32.hrp) throw new ArgumentError('Invalid prefix or Network mismatch');
+      if (decodeBech32.version != 0) throw new ArgumentError('Invalid address version');
+      P2WPKH p2wpkh = new P2WPKH(data: new PaymentData(address: address), network: network);
+      return p2wpkh.data.output;
+    }
+  }
 }
 
 Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType nw]) {

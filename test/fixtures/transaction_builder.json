@@ -24,6 +24,54 @@
         ]
       },
       {
+        "description": "Transaction w/ P2PKH -> P2WSH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006a473044022056c99ba23eb15b3e666b188f87b04d5ef23eeda5298939cdaec35a3bddf3835602205887a5a460f299819b0c93948fafab8b2d64d8c051934431e3bb9acebef5d1b001210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01102700000000000022002032447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b8000000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 32447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b80",
+            "value": 10000
+          }
+        ]
+      },
+      {
+        "description": "P2WPKH -> P2WPKH",
+        "txHex": "01000000000101ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000ffffffff011027000000000000160014aa4d7985c57e011a8b3dd8e0e5a73aaef41629c502483045022100a8fc5e4c6d7073474eff2af5d756966e75be0cdfbba299518526080ce8b584be02200f26d41082764df89e3c815b8eaf51034a3b68a25f1be51208f54222c1bb6c1601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179800000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "prevTxScript": "OP_0 751e76e8199196d454941c45d1b3a323f1433bd6",
+            "signs": [
+              {
+                "prevOutScriptType": "p2wpkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "value": 10000
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_0 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5",
+            "value": 10000
+          }
+        ]
+      },
+      {
         "description": "SIGHASH SINGLE (random)",
         "txHex": "01000000012ffb29d53528ad30c37c267fbbeda3c6fce08f5f6f5d3b1eab22193599a3612a010000006b483045022100f963f1d9564075a934d7c3cfa333bd1378859b84cba947e149926fc9ec89b5ae02202b5b912e507bae65002aff972f9752e2aeb2e22c5fdbaaad672090378184df37032102f1c7eac9200f8dee7e34e59318ff2076c8b3e3ac7f43121e57569a1aec1803d4ffffffff0260a62f01000000001976a9140de1f9b92d2ab6d8ead83f9a0ff5cf518dcb03b888ac80969800000000001976a91454d0e925d5ee0ee26768a237067dee793d01a70688ac00000000",
         "version": 1,

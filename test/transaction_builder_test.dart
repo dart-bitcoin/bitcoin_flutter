@@ -23,7 +23,7 @@ constructSign(f, TransactionBuilder txb) {
     if (inputs[i]['signs'] == null) continue;
     (inputs[i]['signs'] as List<dynamic>).forEach((sign) {
       ECPair keyPair = ECPair.fromWIF(sign['keyPair'], network: network);
-      txb.sign(i, keyPair, sign['hashType']);
+      txb.sign(vin: i, keyPair: keyPair, witnessValue: sign['value'], hashType: sign['hashType']);
     });
   }
   return txb;
@@ -156,7 +156,7 @@ main() {
       test('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', () {
         txb.addInput(txHash, 0);
         txb.addOutput(scripts.elementAt(0), 1000);
-        txb.sign(0, keyPair);
+        txb.sign(vin: 0, keyPair: keyPair);
         try {
           expect(txb.addInput(txHash, 0), isArgumentError);
         } catch (err) {
@@ -193,23 +193,23 @@ main() {
       test('add second output after signed first input with SIGHASH_NONE', () {
         txb.addInput(txHash, 0);
         txb.addOutput(scripts.elementAt(0), 2000);
-        txb.sign(0, keyPair, SIGHASH_NONE);
+        txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_NONE);
         expect(txb.addOutput(scripts.elementAt(1), 9000), 1);
       });
       test('add first output after signed first input with SIGHASH_NONE', () {
         txb.addInput(txHash, 0);
-        txb.sign(0, keyPair, SIGHASH_NONE);
+        txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_NONE);
         expect(txb.addOutput(scripts.elementAt(0), 2000), 0);
       });
       test('add second output after signed first input with SIGHASH_SINGLE', () {
         txb.addInput(txHash, 0);
         txb.addOutput(scripts.elementAt(0), 2000);
-        txb.sign(0, keyPair, SIGHASH_SINGLE);
+        txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_SINGLE);
         expect(txb.addOutput(scripts.elementAt(1), 9000), 1);
       });
       test('add first output after signed first input with SIGHASH_SINGLE', () {
         txb.addInput(txHash, 0);
-        txb.sign(0, keyPair,  SIGHASH_SINGLE);
+        txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_SINGLE);
         try {
           expect(txb.addOutput(scripts.elementAt(0), 2000), isArgumentError);
         } catch(err) {
@@ -219,7 +219,7 @@ main() {
       test('throws if SIGHASH_ALL has been used to sign any existing scriptSigs', () {
         txb.addInput(txHash, 0);
         txb.addOutput(scripts.elementAt(0), 2000);
-        txb.sign(0, keyPair);
+        txb.sign(vin: 0, keyPair: keyPair);
         try {
           expect(txb.addOutput(scripts.elementAt(1), 9000), isArgumentError);
         } catch(err) {
@@ -232,7 +232,7 @@ main() {
         final txb = new TransactionBuilder();
         txb.addInput(txHash, 0);
         txb.addOutput(scripts.elementAt(0), 100);
-        txb.sign(0, keyPair);
+        txb.sign(vin: 0, keyPair: keyPair);
         try {
           expect(txb.setLockTime(65535), isArgumentError);
         } catch(err) {
@@ -252,13 +252,13 @@ main() {
               final keyPair2 = ECPair.fromWIF(sign['keyPair'], network: keyPairNetwork);
               if (sign['throws'] != null && sign['throws']) {
                 try {
-                  expect(txb.sign(i, keyPair2, sign['hashType']), isArgumentError);
+                  expect(txb.sign(vin: i, keyPair: keyPair2, hashType: sign['hashType']), isArgumentError);
                 } catch(err) {
                   expect((err as ArgumentError).message, f['exception']);
                 }
                 threw = true;
               } else {
-                txb.sign(i, keyPair2, sign['hashType']);
+                txb.sign(vin: i, keyPair: keyPair2, hashType: sign['hashType']);
               }
             });
           }

@@ -53,6 +53,7 @@ The below examples are implemented as integration tests:
 - [Generate a native Segwit address](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/addresses_test.dart#L53)
 - [Create a 1-to-1 Transaction](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/transactions_test.dart#L7)
 - [Create a 2-to-2 Transaction](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/transactions_test.dart#L21)
+- [Create a Transaction with a SegWit P2WPKH input](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/transactions_test.dart#L45)
 - [Import a BIP32 testnet xpriv and export to WIF](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L9)
 - [Export a BIP32 xpriv, then import it](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L14)
 - [Export a BIP32 xpub](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L23)
@@ -60,6 +61,13 @@ The below examples are implemented as integration tests:
 - [Create a BIP44, bitcoin, account 0, external address](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L41)
 - [Use BIP39 to generate BIP32 addresses](https://github.com/anicdh/bitcoin-dart/blob/master/test/integration/bip32_test.dart#L56)
 
+
+### TODO
+- Generate a SegWit P2SH address
+- Generate a SegWit multisig address
+- Create a Transaction with a P2SH(multisig) input
+- Build a Transaction w/ psbt format
+- Add Tapscript / Taproot feature
 
 ### Running the test suite
 

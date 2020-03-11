@@ -1,3 +1,5 @@
+## master
+- Support  building a Transaction with a SegWit P2WPKH input
 
 ## 1.1.0
 

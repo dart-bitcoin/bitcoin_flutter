@@ -6,6 +6,7 @@ import 'package:hex/hex.dart';
 import '../lib/src/models/networks.dart';
 import '../lib/src/ecpair.dart';
 import '../lib/src/transaction.dart';
+import '../lib/src/address.dart';
 import '../lib/src/transaction_builder.dart';
 import '../lib/src/utils/script.dart' as bscript;
 import '../lib/src/payments/index.dart' show PaymentData;
@@ -66,7 +67,7 @@ main() {
     final scripts = [
       '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
       '1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'
-    ].map((x) => addressToOutputScript(x));
+    ].map((x) => Address.addressToOutputScript(x));
     final txHash = HEX.decode('0e7cea811c0be9f73c0aca591034396e7264473fc25c1ca45195d7417b36cbe2');
     group('fromTransaction', () {
       (fixtures['valid']['build'] as List<dynamic>).forEach((f) {

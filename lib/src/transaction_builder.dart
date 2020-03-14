@@ -7,6 +7,7 @@ import 'utils/script.dart' as bscript;
 import 'ecpair.dart';
 import 'models/networks.dart';
 import 'transaction.dart';
+import 'address.dart';
 import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart';
 import 'payments/p2wpkh.dart';
@@ -79,7 +80,7 @@ class TransactionBuilder {
   int addOutput(dynamic data, int value) {
     var scriptPubKey;
     if (data is String) {
-      scriptPubKey = addressToOutputScript(data, this.network);
+      scriptPubKey = Address.addressToOutputScript(data, this.network);
     } else if (data is Uint8List) {
       scriptPubKey = data;
     } else {
@@ -342,30 +343,6 @@ class TransactionBuilder {
   Transaction get tx => _tx;
 
   Map get prevTxSet => _prevTxSet;
-}
-
-Uint8List addressToOutputScript(String address, [NetworkType nw]) {
-  NetworkType network = nw ?? bitcoin;
-  var decodeBase58;
-  var decodeBech32;
-  try {
-    decodeBase58 = bs58check.decode(address);
-  } catch (err) {}
-  if (decodeBase58 != null) {
-    // TODO if (decodeBase58.version == network.pubKeyHash)
-    P2PKH p2pkh = new P2PKH(data: new PaymentData(address: address), network: network);
-    return p2pkh.data.output;
-  } else {
-    try {
-      decodeBech32 = segwit.decode(address);
-    } catch (err) {}
-    if (decodeBech32 != null) {
-      if (network.bech32 != decodeBech32.hrp) throw new ArgumentError('Invalid prefix or Network mismatch');
-      if (decodeBech32.version != 0) throw new ArgumentError('Invalid address version');
-      P2WPKH p2wpkh = new P2WPKH(data: new PaymentData(address: address), network: network);
-      return p2wpkh.data.output;
-    }
-  }
 }
 
 Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType nw]) {

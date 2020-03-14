@@ -41,6 +41,7 @@ final bitcoin = new NetworkType(
     pubKeyHash: 0x00,
     scriptHash: 0x05,
     wif: 0x80);
+
 final testnet = new NetworkType(
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'tb',

@@ -1,8 +1,4 @@
 import 'package:test/test.dart';
-// import 'package:hex/hex.dart';
-// import 'dart:typed_data';
-// import 'dart:io';
-// import 'dart:convert';
 import '../lib/src/address.dart' show Address;
 import '../lib/src/models/networks.dart' as NETWORKS;
 

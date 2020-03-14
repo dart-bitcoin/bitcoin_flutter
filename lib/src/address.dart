@@ -9,7 +9,7 @@ import 'payments/p2wpkh.dart';
 class Address {
   static bool validateAddress(String address, [NetworkType nw]) {
     try {
-      var os = addressToOutputScript(address, nw);
+      addressToOutputScript(address, nw);
       return true;
     } catch (err) {
       return false;

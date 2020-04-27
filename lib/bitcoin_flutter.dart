@@ -11,4 +11,5 @@ export 'src/transaction_builder.dart';
 export 'src/ecpair.dart';
 export 'src/payments/p2pkh.dart';
 export 'src/payments/p2wpkh.dart';
+export 'src/payments/index.dart';
 // TODO: Export any libraries intended for clients of this package.

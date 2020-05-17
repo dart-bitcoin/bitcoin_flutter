@@ -1,3 +1,6 @@
+## 2.0.1
+- Add payments/index.dart to lib exports
+
 ## 2.0.0 **Backwards Incompatibility**
 - Please update your sign function if you use this version. sign now [required parameter name](https://github.com/anicdh/bitcoin_flutter/blob/master/lib/src/transaction_builder.dart#L121)
 - Support  building a Transaction with a SegWit P2WPKH input

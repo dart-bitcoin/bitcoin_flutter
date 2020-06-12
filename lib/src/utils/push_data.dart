@@ -1,18 +1,20 @@
 import 'dart:typed_data';
 import 'constants/op.dart';
+
 class DecodedPushData {
   int opcode;
   int number;
   int size;
   DecodedPushData({this.opcode, this.number, this.size});
 }
+
 class EncodedPushData {
   int size;
   Uint8List buffer;
 
   EncodedPushData({this.size, this.buffer});
-
 }
+
 EncodedPushData encode(Uint8List buffer, number, offset) {
   var size = encodingLength(number);
   // ~6 bit
@@ -35,11 +37,9 @@ EncodedPushData encode(Uint8List buffer, number, offset) {
     buffer.buffer.asByteData().setUint32(offset + 1, number, Endian.little);
   }
 
-  return new EncodedPushData(
-    size: size,
-    buffer: buffer
-  );
+  return new EncodedPushData(size: size, buffer: buffer);
 }
+
 DecodedPushData decode(Uint8List bf, int offset) {
   ByteBuffer buffer = bf.buffer;
   int opcode = buffer.asByteData().getUint8(offset);
@@ -65,21 +65,16 @@ DecodedPushData decode(Uint8List bf, int offset) {
     // 32 bit
   } else {
     if (offset + 5 > buffer.lengthInBytes) return null;
-    if (opcode != OPS['OP_PUSHDATA4']) throw new ArgumentError('Unexpected opcode');
+    if (opcode != OPS['OP_PUSHDATA4'])
+      throw new ArgumentError('Unexpected opcode');
 
     number = buffer.asByteData().getUint32(offset + 1);
     size = 5;
   }
 
-  return DecodedPushData(
-    opcode: opcode,
-    number: number,
-    size: size
-  );
+  return DecodedPushData(opcode: opcode, number: number, size: size);
 }
-int encodingLength (i) {
-  return i < OPS['OP_PUSHDATA1'] ? 1
-      : i <= 0xff ? 2
-      : i <= 0xffff ? 3
-      : 5;
+
+int encodingLength(i) {
+  return i < OPS['OP_PUSHDATA1'] ? 1 : i <= 0xff ? 2 : i <= 0xffff ? 3 : 5;
 }

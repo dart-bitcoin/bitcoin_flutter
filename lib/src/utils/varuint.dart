@@ -1,7 +1,8 @@
 import 'check_types.dart';
 import 'dart:typed_data';
-Uint8List encode(int number, [Uint8List buffer,int offset]) {
-  if (!isUint(number, 53));
+
+Uint8List encode(int number, [Uint8List buffer, int offset]) {
+  if (!isUint(number, 53)) ;
 
   buffer = buffer ?? new Uint8List(encodingLength(number));
   offset = offset ?? 0;
@@ -28,7 +29,8 @@ Uint8List encode(int number, [Uint8List buffer,int offset]) {
 
   return buffer;
 }
-int decode (Uint8List buffer, [int offset]) {
+
+int decode(Uint8List buffer, [int offset]) {
   offset = offset ?? 0;
   ByteData bytes = buffer.buffer.asByteData();
   final first = bytes.getUint8(offset);
@@ -55,16 +57,12 @@ int decode (Uint8List buffer, [int offset]) {
 
 int encodingLength(int number) {
   if (!isUint(number, 53)) throw ArgumentError("Expected UInt53");
-  return (
-      number < 0xfd ? 1
-          : number <= 0xffff ? 3
-          : number <= 0xffffffff ? 5
-          : 9
-  );
+  return (number < 0xfd
+      ? 1
+      : number <= 0xffff ? 3 : number <= 0xffffffff ? 5 : 9);
 }
 
-
-int readUInt64LE (ByteData bytes, int offset) {
+int readUInt64LE(ByteData bytes, int offset) {
   final a = bytes.getUint32(offset, Endian.little);
   var b = bytes.getUint32(offset + 4, Endian.little);
   b *= 0x100000000;
@@ -72,7 +70,7 @@ int readUInt64LE (ByteData bytes, int offset) {
   return b + a;
 }
 
-int writeUInt64LE (ByteData bytes, int offset, int value) {
+int writeUInt64LE(ByteData bytes, int offset, int value) {
   isUint(value, 64);
   bytes.setInt32(offset, value & -1, Endian.little);
   bytes.setUint32(offset + 4, value ~/ 0x100000000, Endian.little);

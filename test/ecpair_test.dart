@@ -6,12 +6,13 @@ import 'dart:convert';
 import '../lib/src/ecpair.dart' show ECPair;
 import '../lib/src/models/networks.dart' as NETWORKS;
 
-final ONE = HEX.decode('0000000000000000000000000000000000000000000000000000000000000001');
+final ONE = HEX
+    .decode('0000000000000000000000000000000000000000000000000000000000000001');
 
 main() {
-  final fixtures = json.decode(new File("test/fixtures/ecpair.json").readAsStringSync(encoding: utf8));
+  final fixtures = json.decode(
+      new File('test/fixtures/ecpair.json').readAsStringSync(encoding: utf8));
   group('ECPair', () {
-
     group('fromPrivateKey', () {
       test('defaults to compressed', () {
         final keyPair = ECPair.fromPrivateKey(ONE);
@@ -22,7 +23,8 @@ main() {
         expect(keyPair.compressed, false);
       });
       test('supports the network option', () {
-        final keyPair = ECPair.fromPrivateKey(ONE, network: NETWORKS.testnet, compressed: false);
+        final keyPair = ECPair.fromPrivateKey(ONE,
+            network: NETWORKS.testnet, compressed: false);
         expect(keyPair.network, NETWORKS.testnet);
       });
       (fixtures['valid'] as List).forEach((f) {
@@ -38,7 +40,7 @@ main() {
           try {
             expect(ECPair.fromPrivateKey(d), isArgumentError);
           } catch (err) {
-            expect((err as ArgumentError).message, f["exception"]);
+            expect((err as ArgumentError).message, f['exception']);
           }
         });
       });
@@ -50,7 +52,7 @@ main() {
           try {
             expect(ECPair.fromPublicKey(Q), isArgumentError);
           } catch (err) {
-            expect((err as ArgumentError).message, f["exception"]);
+            expect((err as ArgumentError).message, f['exception']);
           }
         });
       });
@@ -71,7 +73,7 @@ main() {
           try {
             expect(ECPair.fromWIF(f['WIF'], network: network), isArgumentError);
           } catch (err) {
-            expect((err as ArgumentError).message, f["exception"]);
+            expect((err as ArgumentError).message, f['exception']);
           }
         });
       });
@@ -88,7 +90,9 @@ main() {
       final d = Uint8List.fromList(List.generate(32, (i) => 4));
       final exWIF = 'KwMWvwRJeFqxYyhZgNwYuYjbQENDAPAudQx5VEmKJrUZcq6aL2pv';
       test('allows a custom RNG to be used', () {
-        final keyPair = ECPair.makeRandom(rng: (size) { return d.sublist(0, size); });
+        final keyPair = ECPair.makeRandom(rng: (size) {
+          return d.sublist(0, size);
+        });
         expect(keyPair.toWIF(), exWIF);
       });
       test('retains the same defaults as ECPair constructor', () {
@@ -97,18 +101,20 @@ main() {
         expect(keyPair.network, NETWORKS.bitcoin);
       });
       test('supports the options parameter', () {
-        final keyPair = ECPair.makeRandom(compressed: false, network: NETWORKS.testnet);
+        final keyPair =
+            ECPair.makeRandom(compressed: false, network: NETWORKS.testnet);
         expect(keyPair.compressed, false);
         expect(keyPair.network, NETWORKS.testnet);
       });
       test('throws if d is bad length', () {
-        rng (int number) {
+        rng(int number) {
           return new Uint8List(28);
         }
+
         try {
           ECPair.makeRandom(rng: rng);
         } catch (err) {
-          expect((err as ArgumentError).message, "Expected Buffer(Length: 32)");
+          expect((err as ArgumentError).message, 'Expected Buffer(Length: 32)');
         }
       });
     });
@@ -123,8 +129,9 @@ main() {
     });
   });
 }
+
 NETWORKS.NetworkType _getNetwork(f) {
-   var network;
+  var network;
   if (f['network'] != null) {
     if (f['network'] == 'bitcoin') {
       network = NETWORKS.bitcoin;

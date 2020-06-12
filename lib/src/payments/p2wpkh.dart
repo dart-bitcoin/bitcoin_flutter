@@ -9,7 +9,6 @@ import '../payments/index.dart' show PaymentData;
 import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
 
-
 class P2WPKH {
   final EMPTY_SCRIPT = Uint8List.fromList([]);
 
@@ -22,8 +21,11 @@ class P2WPKH {
   }
 
   _init() {
-    if (data.address == null && data.hash == null && data.output == null && data.pubkey == null && data.witness == null)
-      throw new ArgumentError('Not enough data');
+    if (data.address == null &&
+        data.hash == null &&
+        data.output == null &&
+        data.pubkey == null &&
+        data.witness == null) throw new ArgumentError('Not enough data');
 
     if (data.address != null) {
       _getDataFromAddress(data.address);
@@ -34,7 +36,9 @@ class P2WPKH {
     }
 
     if (data.output != null) {
-      if (data.output.length != 22 || data.output[0] != OPS['OP_0'] || data.output[1] != 20) // 0x14
+      if (data.output.length != 22 ||
+          data.output[0] != OPS['OP_0'] ||
+          data.output[1] != 20) // 0x14
         throw new ArgumentError('Output is invalid');
       if (data.hash == null) {
         data.hash = data.output.sublist(2);
@@ -57,8 +61,7 @@ class P2WPKH {
       _getDataFromWitness(data.witness);
     } else if (data.pubkey != null && data.signature != null) {
       data.witness = [data.signature, data.pubkey];
-      if (data.input == null)
-        data.input = EMPTY_SCRIPT;
+      if (data.input == null) data.input = EMPTY_SCRIPT;
     }
   }
 
@@ -73,8 +76,7 @@ class P2WPKH {
       }
       _getDataFromHash();
     }
-    if (data.signature == null)
-      data.signature = witness[0];
+    if (data.signature == null) data.signature = witness[0];
   }
 
   void _getDataFromHash() {
@@ -82,7 +84,7 @@ class P2WPKH {
       data.address = segwit.encode(Segwit(network.bech32, 0, data.hash));
     }
     if (data.output == null) {
-      data.output = bscript.compile([ OPS['OP_0'], data.hash]);
+      data.output = bscript.compile([OPS['OP_0'], data.hash]);
     }
   }
 

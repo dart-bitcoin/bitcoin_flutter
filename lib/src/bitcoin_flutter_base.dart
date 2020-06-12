@@ -17,7 +17,6 @@ class HDWallet {
   String seed;
   NetworkType network;
 
-
   String get privKey {
     if (_bip32 == null) return null;
     try {
@@ -74,10 +73,12 @@ class HDWallet {
   factory HDWallet.fromSeed(Uint8List seed, {NetworkType network}) {
     network = network ?? bitcoin;
     final seedHex = HEX.encode(seed);
-    final wallet = bip32.BIP32.fromSeed(seed, bip32.NetworkType(
-        bip32: bip32.Bip32Type(
-            public: network.bip32.public, private: network.bip32.private),
-        wif: network.wif));
+    final wallet = bip32.BIP32.fromSeed(
+        seed,
+        bip32.NetworkType(
+            bip32: bip32.Bip32Type(
+                public: network.bip32.public, private: network.bip32.private),
+            wif: network.wif));
     final p2pkh = new P2PKH(
         data: new PaymentData(pubkey: wallet.publicKey), network: network);
     return HDWallet(
@@ -86,18 +87,19 @@ class HDWallet {
 
   factory HDWallet.fromBase58(String xpub, {NetworkType network}) {
     network = network ?? bitcoin;
-    final wallet = bip32.BIP32.fromBase58(xpub, bip32.NetworkType(
-        bip32: bip32.Bip32Type(
-            public: network.bip32.public, private: network.bip32.private),
-        wif: network.wif));
+    final wallet = bip32.BIP32.fromBase58(
+        xpub,
+        bip32.NetworkType(
+            bip32: bip32.Bip32Type(
+                public: network.bip32.public, private: network.bip32.private),
+            wif: network.wif));
     final p2pkh = new P2PKH(
         data: new PaymentData(pubkey: wallet.publicKey), network: network);
-    return HDWallet(
-        bip32: wallet, p2pkh: p2pkh, network: network, seed: null);
+    return HDWallet(bip32: wallet, p2pkh: p2pkh, network: network, seed: null);
   }
 
   Uint8List sign(String message) {
-    Uint8List messageHash = magicHash(message,network);
+    Uint8List messageHash = magicHash(message, network);
     return _bip32.sign(messageHash);
   }
 

@@ -9,15 +9,14 @@ class PaymentData {
   Uint8List input;
   List<Uint8List> witness;
 
-  PaymentData({
-    this.address,
-    this.hash,
-    this.output,
-    this.pubkey,
-    this.input,
-    this.signature,
-    this.witness
-  });
+  PaymentData(
+      {this.address,
+      this.hash,
+      this.output,
+      this.pubkey,
+      this.input,
+      this.signature,
+      this.witness});
 
   @override
   String toString() {

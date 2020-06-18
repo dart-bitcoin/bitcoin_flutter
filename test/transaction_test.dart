@@ -7,7 +7,8 @@ import '../lib/src/utils/script.dart' as bscript;
 import '../lib/src/transaction.dart';
 
 main() {
-  final fixtures = json.decode(new File("test/fixtures/transaction.json").readAsStringSync(encoding: utf8));
+  final fixtures = json.decode(new File('test/fixtures/transaction.json')
+      .readAsStringSync(encoding: utf8));
   final valids = (fixtures['valid'] as List<dynamic>);
 
   group('Transaction', () {
@@ -37,7 +38,7 @@ main() {
           Transaction actual = fromRaw(f['raw'], false);
           expect(actual.toHex(), f['hex']);
         });
-        if (f['whex'] != null && f['whex'] != "") {
+        if (f['whex'] != null && f['whex'] != '') {
           test('exports ${f['description']} (${f['id']}) as witness', () {
             Transaction actual = fromRaw(f['raw'], true);
             expect(actual.toHex(), f['whex']);
@@ -49,15 +50,15 @@ main() {
     group('weight/virtualSize', () {
       test('computes virtual size', () {
         valids.forEach((f) {
-          final txHex = (f['whex'] != null && f['whex'] != "") ? f['whex'] : f['hex'];
+          final txHex =
+              (f['whex'] != null && f['whex'] != '') ? f['whex'] : f['hex'];
           final transaction = Transaction.fromHex(txHex);
           expect(transaction.virtualSize(), f['virtualSize']);
         });
       });
     });
 
-    group('addInput', ()
-    {
+    group('addInput', () {
       var prevTxHash;
       setUp(() {
         prevTxHash = HEX.decode(
@@ -94,33 +95,42 @@ main() {
     });
 
     group('getHash/getId', () {
-      verify (f) {
+      verify(f) {
         test('should return the id for ${f['id']} (${f['description']})', () {
-        final txHex = (f['whex'] != null && f['whex'] != "") ? f['whex'] : f['hex'];
-        final tx = Transaction.fromHex(txHex);
+          final txHex =
+              (f['whex'] != null && f['whex'] != '') ? f['whex'] : f['hex'];
+          final tx = Transaction.fromHex(txHex);
           expect(HEX.encode(tx.getHash()), f['hash']);
           expect(tx.getId(), f['id']);
         });
       }
+
       valids.forEach(verify);
     });
 
     group('isCoinbase', () {
-      verify (f) {
-        test('should return ${f['coinbase']} for ${f['id']} (${f['description']})', () {
+      verify(f) {
+        test(
+            'should return ${f['coinbase']} for ${f['id']} (${f['description']})',
+            () {
           final tx = Transaction.fromHex(f['hex']);
           expect(tx.isCoinbase(), f['coinbase']);
         });
       }
+
       valids.forEach(verify);
     });
 
     group('hashForSignature', () {
       (fixtures['hashForSignature'] as List<dynamic>).forEach((f) {
-        test('should return ${f['hash']} for ${f['description'] != null ? 'case "' + f['description'] + '"' : f['script']}', () {
+        test(
+            'should return ${f['hash']} for ${f['description'] != null ? 'case "' + f['description'] + '"' : f['script']}',
+            () {
           final tx = Transaction.fromHex(f['txHex']);
           final script = bscript.fromASM(f['script']);
-          expect(HEX.encode(tx.hashForSignature(f['inIndex'], script, f['type'])), f['hash']);
+          expect(
+              HEX.encode(tx.hashForSignature(f['inIndex'], script, f['type'])),
+              f['hash']);
         });
       });
     });
@@ -147,13 +157,15 @@ Transaction fromRaw(raw, [isWitness]) {
 
     if (txIn['data'] != null) {
       scriptSig = HEX.decode(txIn['data']);
-    } else if (txIn['script'] != null && txIn['script'] != "") {
+    } else if (txIn['script'] != null && txIn['script'] != '') {
       scriptSig = bscript.fromASM(txIn['script']);
     }
     tx.addInput(txHash, txIn['index'], txIn['sequence'], scriptSig);
 
     if (isWitness) {
-      var witness = (txIn['witness'] as List<dynamic>).map((e) => HEX.decode(e.toString()) as Uint8List).toList();
+      var witness = (txIn['witness'] as List<dynamic>)
+          .map((e) => HEX.decode(e.toString()) as Uint8List)
+          .toList();
       tx.setWitness(indx, witness);
     }
   });

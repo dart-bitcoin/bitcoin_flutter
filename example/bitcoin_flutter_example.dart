@@ -1,8 +1,9 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:bip39/bip39.dart' as bip39;
+
 main() {
   var seed = bip39.mnemonicToSeed(
-      "praise you muffin lion enable neck grocery crumble super myself license ghost");
+      'praise you muffin lion enable neck grocery crumble super myself license ghost');
   var hdWallet = new HDWallet.fromSeed(seed);
   print(hdWallet.address);
   // => 12eUJoaWBENQ3tNZE52ZQaHqr3v4tTX4os
@@ -14,7 +15,7 @@ main() {
   // => KwG2BU1ERd3ndbFUrdpR7ymLZbsd7xZpPKxsgJzUf76A4q9CkBpY
 
   var wallet =
-      Wallet.fromWIF("Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct");
+      Wallet.fromWIF('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
   print(wallet.address);
   // => 19AAjaTUbRjQCMuVczepkoPswiZRhjtg31
   print(wallet.pubKey);

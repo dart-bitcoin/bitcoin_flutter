@@ -23,7 +23,7 @@ class ECPair {
   Uint8List get privateKey => _d;
   String toWIF() {
     if (privateKey == null) {
-      throw new ArgumentError("Missing private key");
+      throw new ArgumentError('Missing private key');
     }
     return wif.encode(new wif.WIF(
         version: network.wif, privateKey: privateKey, compressed: compressed));
@@ -44,14 +44,14 @@ class ECPair {
     NetworkType nw;
     if (network != null) {
       nw = network;
-      if (nw.wif != version) throw new ArgumentError("Invalid network version");
+      if (nw.wif != version) throw new ArgumentError('Invalid network version');
     } else {
       if (version == bitcoin.wif) {
         nw = bitcoin;
       } else if (version == testnet.wif) {
         nw = testnet;
       } else {
-        throw new ArgumentError("Unknown network version");
+        throw new ArgumentError('Unknown network version');
       }
     }
     return ECPair.fromPrivateKey(decoded.privateKey,
@@ -60,7 +60,7 @@ class ECPair {
   factory ECPair.fromPublicKey(Uint8List publicKey,
       {NetworkType network, bool compressed}) {
     if (!ecc.isPoint(publicKey)) {
-      throw new ArgumentError("Point is not on the curve");
+      throw new ArgumentError('Point is not on the curve');
     }
     return new ECPair(null, publicKey,
         network: network, compressed: compressed);
@@ -69,9 +69,9 @@ class ECPair {
       {NetworkType network, bool compressed}) {
     if (privateKey.length != 32)
       throw new ArgumentError(
-          "Expected property privateKey of type Buffer(Length: 32)");
+          'Expected property privateKey of type Buffer(Length: 32)');
     if (!ecc.isPrivate(privateKey))
-      throw new ArgumentError("Private key not in range [1, n)");
+      throw new ArgumentError('Private key not in range [1, n)');
     return new ECPair(privateKey, null,
         network: network, compressed: compressed);
   }
@@ -82,8 +82,8 @@ class ECPair {
 //    int beginTime = DateTime.now().millisecondsSinceEpoch;
     do {
       d = rfunc(32);
-      if (d.length != 32) throw ArgumentError("Expected Buffer(Length: 32)");
-//      if (DateTime.now().millisecondsSinceEpoch - beginTime > 5000) throw ArgumentError("Timeout");
+      if (d.length != 32) throw ArgumentError('Expected Buffer(Length: 32)');
+//      if (DateTime.now().millisecondsSinceEpoch - beginTime > 5000) throw ArgumentError('Timeout');
     } while (!ecc.isPrivate(d));
     return ECPair.fromPrivateKey(d, network: network, compressed: compressed);
   }

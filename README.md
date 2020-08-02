@@ -73,7 +73,7 @@ The below examples are implemented as integration tests:
 ### Running the test suite
 
 ``` bash
-dart run test
+pub run test
 ```
 
 ## Complementing Libraries

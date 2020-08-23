@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import '../lib/src/address.dart' show Address;
 import '../lib/src/models/networks.dart' as NETWORKS;
 

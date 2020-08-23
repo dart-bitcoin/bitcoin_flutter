@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:hex/hex.dart';
 import '../../lib/src/ecpair.dart';
 import '../../lib/src/transaction_builder.dart';

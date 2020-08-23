@@ -5,7 +5,7 @@ import '../../lib/src/payments/p2pkh.dart' show P2PKH, P2PKHData;
 import '../../lib/src/payments/p2wpkh.dart' show P2WPKH;
 import 'package:pointycastle/digests/sha256.dart';
 import 'dart:convert';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 NETWORKS.NetworkType litecoin = new NETWORKS.NetworkType(
     messagePrefix: '\x19Litecoin Signed Message:\n',

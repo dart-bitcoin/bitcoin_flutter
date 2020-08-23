@@ -1,5 +1,5 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
 void main() {

@@ -1,6 +1,6 @@
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:bitcoin_flutter/src/payments/p2wpkh.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:bitcoin_flutter/src/utils/script.dart' as bscript;
 import 'dart:io';
 import 'dart:convert';

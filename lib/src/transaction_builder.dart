@@ -339,9 +339,8 @@ class TransactionBuilder {
     if (options.script != null) {
       input =
           Input.expandInput(options.script, options.witness ?? EMPTY_WITNESS);
-    } else {
-      input = new Input();
     }
+    if (input == null) input = Input();
     if (options.value != null) input.value = options.value;
     if (input.prevOutScript == null && options.prevOutScript != null) {
       if (input.pubkeys == null && input.signatures == null) {

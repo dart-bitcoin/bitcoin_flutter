@@ -411,7 +411,10 @@ class Transaction {
     return tx;
   }
 
-  factory Transaction.fromBuffer(Uint8List buffer) {
+  factory Transaction.fromBuffer(
+    Uint8List buffer, {
+    bool noStrict = false,
+  }) {
     var offset = 0;
     // Any changes made to the ByteData will also change the buffer, and vice versa.
     // https://api.dart.dev/stable/2.7.1/dart-typed_data/ByteBuffer/asByteData.html
@@ -501,6 +504,8 @@ class Transaction {
 
     tx.locktime = readUInt32();
 
+    if (noStrict) return tx;
+
     if (offset != buffer.length)
       throw new ArgumentError('Transaction has unexpected data');
 
@@ -508,7 +513,10 @@ class Transaction {
   }
 
   factory Transaction.fromHex(String hex) {
-    return Transaction.fromBuffer(HEX.decode(hex));
+    return Transaction.fromBuffer(
+      HEX.decode(hex),
+      noStrict: true,
+    );
   }
 
   @override

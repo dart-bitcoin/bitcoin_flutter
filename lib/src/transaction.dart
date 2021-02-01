@@ -512,10 +512,13 @@ class Transaction {
     return tx;
   }
 
-  factory Transaction.fromHex(String hex) {
+  factory Transaction.fromHex(
+    String hex, {
+    bool noStrict = false,
+  }) {
     return Transaction.fromBuffer(
       HEX.decode(hex),
-      noStrict: true,
+      noStrict: noStrict,
     );
   }
 

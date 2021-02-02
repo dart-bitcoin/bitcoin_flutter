@@ -1,3 +1,6 @@
+## 2.0.2
+- Add support for optional 'noStrict' parameter in Transaction.fromBuffer
+
 ## 2.0.1
 - Add payments/index.dart to lib exports
 

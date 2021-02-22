@@ -26,7 +26,7 @@ class TransactionBuilder {
     this._inputs = [];
     this._tx = new Transaction();
     this._tx.version = 2;
-    this._tx.time = DateTime.now().millisecondsSinceEpoch;
+    this._tx.time = ((DateTime.now().millisecondsSinceEpoch) / 1000).round();
   }
 
   List<Input> get inputs => _inputs;

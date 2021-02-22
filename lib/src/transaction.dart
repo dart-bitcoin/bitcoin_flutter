@@ -171,6 +171,7 @@ class Transaction {
     toffset = 0;
     var input = ins[inIndex];
     writeUInt32(version);
+    writeUInt32(time);
     writeSlice(hashPrevouts);
     writeSlice(hashSequence);
     writeSlice(input.hash);
@@ -180,7 +181,6 @@ class Transaction {
     writeUInt32(input.sequence);
     writeSlice(hashOutputs);
     writeUInt32(this.locktime);
-    writeUInt32(this.time);
     writeUInt32(hashType);
 
     return bcrypto.hash256(tbuffer);
@@ -359,6 +359,7 @@ class Transaction {
 
     // Start writeBuffer
     writeInt32(version);
+    writeInt32(time);
 
     if (_ALLOW_WITNESS && hasWitnesses()) {
       writeUInt8(ADVANCED_TRANSACTION_MARKER);
@@ -392,7 +393,6 @@ class Transaction {
     }
 
     writeUInt32(this.locktime);
-    writeUInt32(this.time);
     // End writeBuffer
 
     // avoid slicing unless necessary
@@ -474,6 +474,7 @@ class Transaction {
 
     final tx = new Transaction();
     tx.version = readInt32();
+    tx.time = readInt32();
 
     final marker = readUInt8();
     final flag = readUInt8();
@@ -507,7 +508,6 @@ class Transaction {
     }
 
     tx.locktime = readUInt32();
-    tx.time = readUInt32();
 
     if (noStrict) return tx;
 

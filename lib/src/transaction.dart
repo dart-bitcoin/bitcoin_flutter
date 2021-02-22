@@ -248,6 +248,7 @@ class Transaction {
   _byteLength(_ALLOW_WITNESS) {
     var hasWitness = _ALLOW_WITNESS && hasWitnesses();
     return (hasWitness ? 10 : 8) +
+        4 +
         varuint.encodingLength(ins.length) +
         varuint.encodingLength(outs.length) +
         ins.fold(0, (sum, input) => sum + 40 + varSliceSize(input.script)) +

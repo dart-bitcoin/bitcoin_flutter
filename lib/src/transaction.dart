@@ -31,6 +31,7 @@ final BLANK_OUTPUT =
 class Transaction {
   int version = 1;
   int locktime = 0;
+  int time = 0;
   List<Input> ins = [];
   List<Output> outs = [];
   Transaction();

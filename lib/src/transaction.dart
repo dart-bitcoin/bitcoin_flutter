@@ -180,6 +180,7 @@ class Transaction {
     writeUInt32(input.sequence);
     writeSlice(hashOutputs);
     writeUInt32(this.locktime);
+    writeUInt32(this.time);
     writeUInt32(hashType);
 
     return bcrypto.hash256(tbuffer);
@@ -391,6 +392,7 @@ class Transaction {
     }
 
     writeUInt32(this.locktime);
+    writeUInt32(this.time);
     // End writeBuffer
 
     // avoid slicing unless necessary
@@ -403,6 +405,7 @@ class Transaction {
     Transaction tx = new Transaction();
     tx.version = _tx.version;
     tx.locktime = _tx.locktime;
+    tx.time = _tx.time;
     tx.ins = _tx.ins.map((input) {
       return Input.clone(input);
     }).toList();
@@ -504,6 +507,7 @@ class Transaction {
     }
 
     tx.locktime = readUInt32();
+    tx.time = readUInt32();
 
     if (noStrict) return tx;
 

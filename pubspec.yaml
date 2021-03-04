@@ -10,7 +10,7 @@ environment:
 dependencies:
   bip39: ^1.0.3
   bip32: ^1.0.5
-  pointycastle: ^1.0.2
+  pointycastle: ^2.0.0
   hex: ^0.1.2
   bs58check: ^1.0.1
   meta: ^1.2.3

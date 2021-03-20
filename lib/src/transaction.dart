@@ -279,7 +279,7 @@ class Transaction {
   }
 
   int get txSize {
-    return _byteLength(true);
+    return virtualSize();
   }
 
   Uint8List toBuffer([Uint8List buffer, int initialOffset]) {

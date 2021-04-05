@@ -22,7 +22,7 @@ import 'package:bip39/bip39.dart' as bip39;
 
 main() {
   var seed = bip39.mnemonicToSeed("praise you muffin lion enable neck grocery crumble super myself license ghost");
-  var hdWallet = new HDWallet(seed);
+  var hdWallet = new HDWallet.fromSeed(seed);
   print(hdWallet.address);
   // => 12eUJoaWBENQ3tNZE52ZQaHqr3v4tTX4os
   print(hdWallet.pubKey);

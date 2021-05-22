@@ -3,6 +3,7 @@ description: A dart Bitcoin library for Flutter. BIP32, BIP39, P2PKH integration
 version: 2.0.2
 homepage: https://github.com/anicdh
 author: andoan <anic.dh@gmail.com>
+publish_to: none
 
 environment:
   sdk: ">=2.3.0 <3.0.0"
@@ -14,7 +15,9 @@ dependencies:
   hex: ^0.1.2
   bs58check: ^1.0.1
   meta: ^1.2.3
-  bech32: 0.1.2
+  bech32: 
+    git:
+      url: https://github.com/saeveritt/bech32.git
 
 dev_dependencies:
   test: ^1.15.4

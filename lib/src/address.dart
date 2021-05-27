@@ -7,7 +7,7 @@ import 'payments/p2pkh.dart';
 import 'payments/p2wpkh.dart';
 
 class Address {
-  static bool validateAddress(String address, [NetworkType nw]) {
+  static bool validateAddress(String address, [NetworkType? nw]) {
     try {
       addressToOutputScript(address, nw);
       return true;
@@ -16,7 +16,7 @@ class Address {
     }
   }
 
-  static Uint8List addressToOutputScript(String address, [NetworkType nw]) {
+  static Uint8List? addressToOutputScript(String address, [NetworkType? nw]) {
     NetworkType network = nw ?? bitcoin;
     var decodeBase58;
     var decodeBech32;

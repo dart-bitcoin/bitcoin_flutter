@@ -15,30 +15,32 @@ main() {
   group('ECPair', () {
     group('fromPrivateKey', () {
       test('defaults to compressed', () {
-        final keyPair = ECPair.fromPrivateKey(ONE);
+        final keyPair = ECPair.fromPrivateKey(ONE as Uint8List);
         expect(keyPair.compressed, true);
       });
       test('supports the uncompressed option', () {
-        final keyPair = ECPair.fromPrivateKey(ONE, compressed: false);
+        final keyPair =
+            ECPair.fromPrivateKey(ONE as Uint8List, compressed: false);
         expect(keyPair.compressed, false);
       });
       test('supports the network option', () {
-        final keyPair = ECPair.fromPrivateKey(ONE,
+        final keyPair = ECPair.fromPrivateKey(ONE as Uint8List,
             network: NETWORKS.testnet, compressed: false);
         expect(keyPair.network, NETWORKS.testnet);
       });
       (fixtures['valid'] as List).forEach((f) {
         test('derives public key for ${f['WIF']}', () {
           final d = HEX.decode(f['d']);
-          final keyPair = ECPair.fromPrivateKey(d, compressed: f['compressed']);
-          expect(HEX.encode(keyPair.publicKey), f['Q']);
+          final keyPair = ECPair.fromPrivateKey(d as Uint8List,
+              compressed: f['compressed']);
+          expect(HEX.encode(keyPair.publicKey as List<int>), f['Q']);
         });
       });
       (fixtures['invalid']['fromPrivateKey'] as List).forEach((f) {
         test('throws ' + f['exception'], () {
           final d = HEX.decode(f['d']);
           try {
-            expect(ECPair.fromPrivateKey(d), isArgumentError);
+            expect(ECPair.fromPrivateKey(d as Uint8List), isArgumentError);
           } catch (err) {
             expect((err as ArgumentError).message, f['exception']);
           }
@@ -50,7 +52,7 @@ main() {
         test('throws ' + f['exception'], () {
           final Q = HEX.decode(f['Q']);
           try {
-            expect(ECPair.fromPublicKey(Q), isArgumentError);
+            expect(ECPair.fromPublicKey(Q as Uint8List), isArgumentError);
           } catch (err) {
             expect((err as ArgumentError).message, f['exception']);
           }
@@ -62,14 +64,14 @@ main() {
         test('imports ${f['WIF']}', () {
           final keyPair = ECPair.fromWIF(f['WIF']);
           var network = _getNetwork(f);
-          expect(HEX.encode(keyPair.privateKey), f['d']);
+          expect(HEX.encode(keyPair.privateKey as List<int>), f['d']);
           expect(keyPair.compressed, f['compressed']);
           expect(keyPair.network, network);
         });
       });
       (fixtures['invalid']['fromWIF'] as List).forEach((f) {
         test('throws ' + f['exception'], () {
-          var network = _getNetwork(f);
+          var network = _getNetwork(f)!;
           try {
             expect(ECPair.fromWIF(f['WIF'], network: network), isArgumentError);
           } catch (err) {
@@ -121,7 +123,7 @@ main() {
     group('.network', () {
       (fixtures['valid'] as List).forEach((f) {
         test('return ${f['network']} for ${f['WIF']}', () {
-          NETWORKS.NetworkType network = _getNetwork(f);
+          NETWORKS.NetworkType? network = _getNetwork(f);
           final keyPair = ECPair.fromWIF(f['WIF']);
           expect(keyPair.network, network);
         });
@@ -130,7 +132,7 @@ main() {
   });
 }
 
-NETWORKS.NetworkType _getNetwork(f) {
+NETWORKS.NetworkType? _getNetwork(f) {
   var network;
   if (f['network'] != null) {
     if (f['network'] == 'bitcoin') {

@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:hex/hex.dart';
 import '../../lib/src/ecpair.dart';
 import '../../lib/src/transaction_builder.dart';
 import '../../lib/src/models/networks.dart' as NETWORKS;

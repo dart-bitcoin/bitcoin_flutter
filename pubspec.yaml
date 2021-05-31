@@ -10,9 +10,7 @@ environment:
 
 dependencies:
   bip39: ^1.0.6
-  bip32: 
-    git: 
-      url: https://github.com/peercoin/bip32-dart.git
+  bip32: ^2.0.0
   pointycastle: ^3.0.1
   hex: ^0.2.0
   bs58check: ^1.0.2

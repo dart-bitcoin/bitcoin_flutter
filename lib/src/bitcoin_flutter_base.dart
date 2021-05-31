@@ -24,7 +24,7 @@ class HDWallet {
     }
   }
 
-  String? get pubKey => _bip32 != null ? HEX.encode(_bip32!.publicKey!) : null;
+  String? get pubKey => _bip32 != null ? HEX.encode(_bip32!.publicKey) : null;
 
   String? get base58Priv {
     if (_bip32 == null) return null;

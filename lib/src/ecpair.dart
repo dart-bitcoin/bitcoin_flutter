@@ -26,7 +26,9 @@ class ECPair {
       throw new ArgumentError('Missing private key');
     }
     return wif.encode(new wif.WIF(
-        version: network!.wif, privateKey: privateKey, compressed: compressed));
+        version: network!.wif,
+        privateKey: privateKey!,
+        compressed: compressed!));
   }
 
   Uint8List sign(Uint8List hash) {
@@ -54,7 +56,7 @@ class ECPair {
         throw new ArgumentError('Unknown network version');
       }
     }
-    return ECPair.fromPrivateKey(decoded.privateKey!,
+    return ECPair.fromPrivateKey(decoded.privateKey,
         compressed: decoded.compressed, network: nw);
   }
   factory ECPair.fromPublicKey(Uint8List publicKey,

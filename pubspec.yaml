@@ -5,7 +5,7 @@ homepage: https://github.com/anicdh
 author: andoan <anic.dh@gmail.com>
 
 environment:
-  sdk: ">=2.3.0 <3.0.0"
+  sdk: ">=2.13.0 <3.0.0"
 
 dependencies:
   bip39: ^1.0.6
@@ -17,4 +17,4 @@ dependencies:
   bech32: ^0.2.1
 
 dev_dependencies:
-  test: ^1.15.4
+  test: ^1.17.10

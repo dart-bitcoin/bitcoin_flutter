@@ -1,7 +1,7 @@
 /// Support for doing something awesome.
 ///
 /// More dartdocs go here.
-// @dart=2.9
+// @dart=2.12
 library bitcoin_flutter;
 
 export 'src/bitcoin_flutter_base.dart';

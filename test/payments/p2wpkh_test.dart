@@ -8,7 +8,6 @@ import 'package:hex/hex.dart';
 import 'dart:typed_data';
 
 main() {
-
   final fixtures = json.decode(new File("./test/fixtures/p2wpkh.json").readAsStringSync(encoding: utf8));
 
   group('(valid case)', () {
@@ -47,27 +46,38 @@ main() {
         final arguments = _preformPaymentData(f['arguments']);
         try {
           expect(new P2WPKH(data: arguments), isArgumentError);
-        } catch(err) {
+        } catch (err) {
           expect((err as ArgumentError).message, f['exception']);
         }
-
       });
     });
   });
 }
 
 PaymentData _preformPaymentData(dynamic x) {
-  final address   = x['address'];
-  final hash      = x['hash'] != null ? HEX.decode(x['hash']) : null;
-  final input     = x['input'] != null ? bscript.fromASM(x['input']) : null;
-  final witness   = x['witness'] != null ? (x['witness'] as List<dynamic>).map((e) => HEX.decode(e.toString()) as Uint8List).toList() : null;
-  final output    = x['output'] != null ? bscript.fromASM(x['output']) : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
-  final pubkey    = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
+  final address = x['address'];
+  final hash = x['hash'] != null ? HEX.decode(x['hash']) : null;
+  final input = x['input'] != null ? bscript.fromASM(x['input']) : null;
+  final witness = x['witness'] != null ? (x['witness'] as List<dynamic>).map((e) => HEX.decode(e.toString()) as Uint8List).toList() : null;
+  final output = x['output'] != null
+      ? bscript.fromASM(x['output'])
+      : x['outputHex'] != null
+          ? HEX.decode(x['outputHex'])
+          : null;
+  final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
-  return new PaymentData(address: address, hash: hash, input: input, output: output, pubkey: pubkey, signature: signature, witness: witness);
+  return new PaymentData(
+    address: address,
+    hash: Uint8List.fromList(hash!),
+    input: Uint8List.fromList(input!),
+    output: Uint8List.fromList(output!),
+    pubkey: Uint8List.fromList(pubkey!),
+    signature: Uint8List.fromList(signature!),
+    witness: witness,
+  );
 }
 
-String _toString(dynamic x) {
+String? _toString(dynamic x) {
   if (x == null) {
     return null;
   }

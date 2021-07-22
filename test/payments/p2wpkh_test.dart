@@ -8,8 +8,8 @@ import 'package:hex/hex.dart';
 import 'dart:typed_data';
 
 main() {
-
-  final fixtures = json.decode(new File("./test/fixtures/p2wpkh.json").readAsStringSync(encoding: utf8));
+  final fixtures = json.decode(
+      new File("./test/fixtures/p2wpkh.json").readAsStringSync(encoding: utf8));
 
   group('(valid case)', () {
     (fixtures["valid"] as List<dynamic>).forEach((f) {
@@ -43,31 +43,49 @@ main() {
 
   group('(invalid case)', () {
     (fixtures["invalid"] as List<dynamic>).forEach((f) {
-      test('throws ' + f['exception'] + (f['description'] != null ? ('for ' + f['description']) : ''), () {
+      test(
+          'throws ' +
+              f['exception'] +
+              (f['description'] != null ? ('for ' + f['description']) : ''),
+          () {
         final arguments = _preformPaymentData(f['arguments']);
         try {
           expect(new P2WPKH(data: arguments), isArgumentError);
-        } catch(err) {
+        } catch (err) {
           expect((err as ArgumentError).message, f['exception']);
         }
-
       });
     });
   });
 }
 
 PaymentData _preformPaymentData(dynamic x) {
-  final address   = x['address'];
-  final hash      = x['hash'] != null ? HEX.decode(x['hash']) : null;
-  final input     = x['input'] != null ? bscript.fromASM(x['input']) : null;
-  final witness   = x['witness'] != null ? (x['witness'] as List<dynamic>).map((e) => HEX.decode(e.toString()) as Uint8List).toList() : null;
-  final output    = x['output'] != null ? bscript.fromASM(x['output']) : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
-  final pubkey    = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
+  final address = x['address'];
+  final hash = x['hash'] != null ? HEX.decode(x['hash']) : null;
+  final input = x['input'] != null ? bscript.fromASM(x['input']) : null;
+  final witness = x['witness'] != null
+      ? (x['witness'] as List<dynamic>)
+          .map((e) => HEX.decode(e.toString()) as Uint8List)
+          .toList()
+      : null;
+  final output = x['output'] != null
+      ? bscript.fromASM(x['output'])
+      : x['outputHex'] != null
+          ? HEX.decode(x['outputHex'])
+          : null;
+  final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
-  return new PaymentData(address: address, hash: hash, input: input, output: output, pubkey: pubkey, signature: signature, witness: witness);
+  return new PaymentData(
+      address: address,
+      hash: hash as Uint8List?,
+      input: input,
+      output: output as Uint8List?,
+      pubkey: pubkey as Uint8List?,
+      signature: signature as Uint8List?,
+      witness: witness);
 }
 
-String _toString(dynamic x) {
+String? _toString(dynamic x) {
   if (x == null) {
     return null;
   }

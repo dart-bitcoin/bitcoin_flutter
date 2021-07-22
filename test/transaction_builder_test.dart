@@ -31,7 +31,7 @@ constructSign(f, TransactionBuilder txb) {
   return txb;
 }
 
-TransactionBuilder construct(f, [bool dontSign]) {
+TransactionBuilder construct(f, [bool? dontSign]) {
   final network = NETWORKS[f['network']];
   final txb = new TransactionBuilder(network: network);
   if (f['version'] != null) txb.setVersion(f['version']);
@@ -71,7 +71,8 @@ main() {
           .readAsStringSync(encoding: utf8));
   group('TransactionBuilder', () {
     final keyPair = ECPair.fromPrivateKey(HEX.decode(
-        '0000000000000000000000000000000000000000000000000000000000000001'));
+            '0000000000000000000000000000000000000000000000000000000000000001')
+        as Uint8List);
     final scripts = [
       '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
       '1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'
@@ -109,11 +110,11 @@ main() {
           final txAfter = f['incomplete'] ? txb.buildIncomplete() : txb.build();
 
           for (var i = 0; i < txAfter.ins.length; i++) {
-            test(bscript.toASM(txAfter.ins[i].script),
+            test(bscript.toASM(txAfter.ins[i].script!),
                 f['inputs'][i]['scriptSigAfter']);
           }
           for (var i = 0; i < txAfter.outs.length; i++) {
-            test(bscript.toASM(txAfter.outs[i].script),
+            test(bscript.toASM(txAfter.outs[i].script!),
                 f['outputs'][i]['script']);
           }
         });
@@ -131,7 +132,7 @@ main() {
         });
     });
     group('addInput', () {
-      TransactionBuilder txb;
+      late TransactionBuilder txb;
       setUp(() {
         txb = new TransactionBuilder();
       });
@@ -186,7 +187,7 @@ main() {
       });
     });
     group('addOutput', () {
-      TransactionBuilder txb;
+      late TransactionBuilder txb;
       setUp(() {
         txb = new TransactionBuilder();
       });

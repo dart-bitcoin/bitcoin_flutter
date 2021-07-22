@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
 class PaymentData {
-  String address;
-  Uint8List hash;
-  Uint8List output;
-  Uint8List signature;
-  Uint8List pubkey;
-  Uint8List input;
-  List<Uint8List> witness;
+  String? address;
+  Uint8List? hash;
+  Uint8List? output;
+  Uint8List? signature;
+  Uint8List? pubkey;
+  Uint8List? input;
+  List<Uint8List>? witness;
 
   PaymentData(
       {this.address,

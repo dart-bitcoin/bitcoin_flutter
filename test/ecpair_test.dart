@@ -6,8 +6,9 @@ import 'dart:convert';
 import '../lib/src/ecpair.dart' show ECPair;
 import '../lib/src/models/networks.dart' as NETWORKS;
 
-final ONE = HEX
-    .decode('0000000000000000000000000000000000000000000000000000000000000001');
+final ONE = HEX.decode(
+        '0000000000000000000000000000000000000000000000000000000000000001')
+    as Uint8List;
 
 main() {
   final fixtures = json.decode(
@@ -29,14 +30,14 @@ main() {
       });
       (fixtures['valid'] as List).forEach((f) {
         test('derives public key for ${f['WIF']}', () {
-          final d = HEX.decode(f['d']);
+          final d = HEX.decode(f['d']) as Uint8List;
           final keyPair = ECPair.fromPrivateKey(d, compressed: f['compressed']);
-          expect(HEX.encode(keyPair.publicKey), f['Q']);
+          expect(HEX.encode(keyPair.publicKey!), f['Q']);
         });
       });
       (fixtures['invalid']['fromPrivateKey'] as List).forEach((f) {
         test('throws ' + f['exception'], () {
-          final d = HEX.decode(f['d']);
+          final d = HEX.decode(f['d']) as Uint8List;
           try {
             expect(ECPair.fromPrivateKey(d), isArgumentError);
           } catch (err) {
@@ -48,7 +49,7 @@ main() {
     group('fromPublicKey', () {
       (fixtures['invalid']['fromPublicKey'] as List).forEach((f) {
         test('throws ' + f['exception'], () {
-          final Q = HEX.decode(f['Q']);
+          final Q = HEX.decode(f['Q']) as Uint8List;
           try {
             expect(ECPair.fromPublicKey(Q), isArgumentError);
           } catch (err) {
@@ -62,7 +63,7 @@ main() {
         test('imports ${f['WIF']}', () {
           final keyPair = ECPair.fromWIF(f['WIF']);
           var network = _getNetwork(f);
-          expect(HEX.encode(keyPair.privateKey), f['d']);
+          expect(HEX.encode(keyPair.privateKey!), f['d']);
           expect(keyPair.compressed, f['compressed']);
           expect(keyPair.network, network);
         });
@@ -121,7 +122,7 @@ main() {
     group('.network', () {
       (fixtures['valid'] as List).forEach((f) {
         test('return ${f['network']} for ${f['WIF']}', () {
-          NETWORKS.NetworkType network = _getNetwork(f);
+          var network = _getNetwork(f);
           final keyPair = ECPair.fromWIF(f['WIF']);
           expect(keyPair.network, network);
         });
@@ -130,14 +131,13 @@ main() {
   });
 }
 
-NETWORKS.NetworkType _getNetwork(f) {
-  var network;
+NETWORKS.NetworkType? _getNetwork(f) {
   if (f['network'] != null) {
     if (f['network'] == 'bitcoin') {
-      network = NETWORKS.bitcoin;
+      return NETWORKS.bitcoin;
     } else if (f['network'] == 'testnet') {
-      network = NETWORKS.testnet;
+      return NETWORKS.testnet;
     }
   }
-  return network;
+  return null;
 }

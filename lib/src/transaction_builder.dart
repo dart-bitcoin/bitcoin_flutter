@@ -1,8 +1,5 @@
 import 'dart:typed_data';
-import 'package:meta/meta.dart';
 import 'package:hex/hex.dart';
-import 'package:bs58check/bs58check.dart' as bs58check;
-import 'package:bech32/bech32.dart';
 import 'utils/script.dart' as bscript;
 import 'ecpair.dart';
 import 'models/networks.dart';
@@ -16,22 +13,18 @@ import 'classify.dart';
 class TransactionBuilder {
   NetworkType network;
   int maximumFeeRate;
-  List<Input> _inputs;
-  Transaction _tx;
+  List<Input> _inputs = [];
+  Transaction _tx = Transaction()..version = 2;
   Map _prevTxSet = {};
 
-  TransactionBuilder({NetworkType network, int maximumFeeRate}) {
-    this.network = network ?? bitcoin;
-    this.maximumFeeRate = maximumFeeRate ?? 2500;
-    this._inputs = [];
-    this._tx = new Transaction();
-    this._tx.version = 2;
-  }
+  TransactionBuilder({NetworkType? network, int? maximumFeeRate})
+      : network = network ?? bitcoin,
+        maximumFeeRate = maximumFeeRate ?? 2500 {}
 
   List<Input> get inputs => _inputs;
 
   factory TransactionBuilder.fromTransaction(Transaction transaction,
-      [NetworkType network]) {
+      [NetworkType? network]) {
     final txb = new TransactionBuilder(network: network);
     // Copy transaction fields
     txb.setVersion(transaction.version);
@@ -39,13 +32,13 @@ class TransactionBuilder {
 
     // Copy outputs (done first to avoid signature invalidation)
     transaction.outs.forEach((txOut) {
-      txb.addOutput(txOut.script, txOut.value);
+      txb.addOutput(txOut.script, txOut.value!);
     });
 
     transaction.ins.forEach((txIn) {
       txb._addInputUnsafe(
-          txIn.hash,
-          txIn.index,
+          txIn.hash!,
+          txIn.index!,
           new Input(
               sequence: txIn.sequence,
               script: txIn.script,
@@ -73,7 +66,7 @@ class TransactionBuilder {
     // if any signatures exist, throw
     if (this._inputs.map((input) {
       if (input.signatures == null) return false;
-      return input.signatures.map((s) {
+      return input.signatures!.map((s) {
         return s != null;
       }).contains(true);
     }).contains(true)) {
@@ -98,7 +91,7 @@ class TransactionBuilder {
   }
 
   int addInput(dynamic txHash, int vout,
-      [int sequence, Uint8List prevOutScript]) {
+      [int? sequence, Uint8List? prevOutScript]) {
     if (!_canModifyInputs()) {
       throw new ArgumentError('No, this would invalidate signatures');
     }
@@ -124,12 +117,12 @@ class TransactionBuilder {
   }
 
   sign(
-      {@required int vin,
-      @required ECPair keyPair,
-      Uint8List redeemScript,
-      int witnessValue,
-      Uint8List witnessScript,
-      int hashType}) {
+      {required int vin,
+      required ECPair keyPair,
+      Uint8List? redeemScript,
+      int? witnessValue,
+      Uint8List? witnessScript,
+      int? hashType}) {
     if (keyPair.network != null &&
         keyPair.network.toString().compareTo(network.toString()) != 0)
       throw new ArgumentError('Inconsistent network');
@@ -154,7 +147,7 @@ class TransactionBuilder {
         // TODO
       }
       if (input.prevOutScript != null && input.prevOutType != null) {
-        var type = classifyOutput(input.prevOutScript);
+        var type = classifyOutput(input.prevOutScript!);
         if (type == SCRIPT_TYPES['P2WPKH']) {
           input.prevOutType = SCRIPT_TYPES['P2WPKH'];
           input.hasWitness = true;
@@ -167,14 +160,14 @@ class TransactionBuilder {
               .output;
         } else {
           // DRY CODE
-          Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey);
+          Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey!);
           input.prevOutType = SCRIPT_TYPES['P2PKH'];
           input.signatures = [null];
           input.pubkeys = [ourPubKey];
           input.signScript = prevOutScript;
         }
       } else {
-        Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey);
+        Uint8List prevOutScript = pubkeyToOutputScript(ourPubKey!);
         input.prevOutType = SCRIPT_TYPES['P2PKH'];
         input.signatures = [null];
         input.pubkeys = [ourPubKey];
@@ -185,21 +178,23 @@ class TransactionBuilder {
     if (input.hasWitness) {
       signatureHash = this
           ._tx
-          .hashForWitnessV0(vin, input.signScript, input.value, hashType);
+          .hashForWitnessV0(vin, input.signScript!, input.value!, hashType);
     } else {
       signatureHash =
-          this._tx.hashForSignature(vin, input.signScript, hashType);
+          this._tx.hashForSignature(vin, input.signScript!, hashType);
     }
 
     // enforce in order signing of public keys
     var signed = false;
-    for (var i = 0; i < input.pubkeys.length; i++) {
-      if (HEX.encode(ourPubKey).compareTo(HEX.encode(input.pubkeys[i])) != 0)
-        continue;
-      if (input.signatures[i] != null)
+    for (var i = 0; i < input.pubkeys!.length; i++) {
+      if (HEX
+              .encode(ourPubKey!)
+              .compareTo(HEX.encode(input.pubkeys![i] as Uint8List)) !=
+          0) continue;
+      if (input.signatures![i] != null)
         throw new ArgumentError('Signature already exists');
       final signature = keyPair.sign(signatureHash);
-      input.signatures[i] = bscript.encodeSignature(signature, hashType);
+      input.signatures![i] = bscript.encodeSignature(signature, hashType);
       signed = true;
     }
     if (!signed) throw new ArgumentError('Key pair cannot sign for this input');
@@ -226,24 +221,24 @@ class TransactionBuilder {
     for (var i = 0; i < _inputs.length; i++) {
       if (_inputs[i].pubkeys != null &&
           _inputs[i].signatures != null &&
-          _inputs[i].pubkeys.length != 0 &&
-          _inputs[i].signatures.length != 0) {
+          _inputs[i].pubkeys!.length != 0 &&
+          _inputs[i].signatures!.length != 0) {
         if (_inputs[i].prevOutType == SCRIPT_TYPES['P2PKH']) {
           P2PKH payment = new P2PKH(
               data: new PaymentData(
-                  pubkey: _inputs[i].pubkeys[0],
-                  signature: _inputs[i].signatures[0]),
+                  pubkey: _inputs[i].pubkeys![0],
+                  signature: _inputs[i].signatures![0]),
               network: network);
-          tx.setInputScript(i, payment.data.input);
+          tx.setInputScript(i, payment.data.input!);
           tx.setWitness(i, payment.data.witness);
         } else if (_inputs[i].prevOutType == SCRIPT_TYPES['P2WPKH']) {
           P2WPKH payment = new P2WPKH(
               data: new PaymentData(
-                  pubkey: _inputs[i].pubkeys[0],
-                  signature: _inputs[i].signatures[0]),
+                  pubkey: _inputs[i].pubkeys![0],
+                  signature: _inputs[i].signatures![0]),
               network: network);
-          tx.setInputScript(i, payment.data.input);
-          tx.setWitness(i, payment.data.witness);
+          tx.setInputScript(i, payment.data.input!);
+          tx.setWitness(i, payment.data.witness!);
         }
       } else if (!allowIncomplete) {
         throw new ArgumentError('Transaction is not complete');
@@ -271,7 +266,7 @@ class TransactionBuilder {
   bool _canModifyInputs() {
     return _inputs.every((input) {
       if (input.signatures == null) return true;
-      return input.signatures.every((signature) {
+      return input.signatures!.every((signature) {
         if (signature == null) return true;
         return _signatureHashType(signature) & SIGHASH_ANYONECANPAY != 0;
       });
@@ -283,7 +278,7 @@ class TransactionBuilder {
     final nOutputs = _tx.outs.length;
     return _inputs.every((input) {
       if (input.signatures == null) return true;
-      return input.signatures.every((signature) {
+      return input.signatures!.every((signature) {
         if (signature == null) return true;
         final hashType = _signatureHashType(signature);
         final hashTypeMod = hashType & 0x1f;
@@ -307,9 +302,9 @@ class TransactionBuilder {
     // .build() will fail, but .buildIncomplete() is OK
     return (this._tx.outs.length == 0) &&
         _inputs.map((input) {
-          if (input.signatures == null || input.signatures.length == 0)
+          if (input.signatures == null || input.signatures!.length == 0)
             return false;
-          return input.signatures.map((signature) {
+          return input.signatures!.map((signature) {
             if (signature == null) return false; // no signature, no issue
             final hashType = _signatureHashType(signature);
             if (hashType & SIGHASH_NONE != 0)
@@ -323,8 +318,8 @@ class TransactionBuilder {
     return input.pubkeys != null &&
         input.signScript != null &&
         input.signatures != null &&
-        input.signatures.length == input.pubkeys.length &&
-        input.pubkeys.length > 0;
+        input.signatures!.length == input.pubkeys!.length &&
+        input.pubkeys!.length > 0;
   }
 
   _addInputUnsafe(Uint8List hash, int vout, Input options) {
@@ -338,21 +333,21 @@ class TransactionBuilder {
       throw new ArgumentError('Duplicate TxOut: ' + prevTxOut);
     if (options.script != null) {
       input =
-          Input.expandInput(options.script, options.witness ?? EMPTY_WITNESS);
+          Input.expandInput(options.script!, options.witness ?? EMPTY_WITNESS);
     } else {
       input = new Input();
     }
     if (options.value != null) input.value = options.value;
     if (input.prevOutScript == null && options.prevOutScript != null) {
       if (input.pubkeys == null && input.signatures == null) {
-        var expanded = Output.expandOutput(options.prevOutScript);
-        if (expanded.pubkeys != null && !expanded.pubkeys.isEmpty) {
+        var expanded = Output.expandOutput(options.prevOutScript!);
+        if (expanded.pubkeys != null && !expanded.pubkeys!.isEmpty) {
           input.pubkeys = expanded.pubkeys;
           input.signatures = expanded.signatures;
         }
       }
       input.prevOutScript = options.prevOutScript;
-      input.prevOutType = classifyOutput(options.prevOutScript);
+      input.prevOutType = classifyOutput(options.prevOutScript!);
     }
     int vin = _tx.addInput(hash, vout, options.sequence, options.script);
     _inputs.add(input);
@@ -369,9 +364,9 @@ class TransactionBuilder {
   Map get prevTxSet => _prevTxSet;
 }
 
-Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType nw]) {
+Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType? nw]) {
   NetworkType network = nw ?? bitcoin;
   P2PKH p2pkh =
       new P2PKH(data: new PaymentData(pubkey: pubkey), network: network);
-  return p2pkh.data.output;
+  return p2pkh.data.output!;
 }

@@ -5,16 +5,30 @@ homepage: https://github.com/anicdh
 author: andoan <anic.dh@gmail.com>
 
 environment:
-  sdk: ">=2.3.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   bip39: ^1.0.3
   bip32: ^1.0.5
   pointycastle: ^1.0.2
-  hex: ^0.1.2
+  hex: ^0.2.0
   bs58check: ^1.0.1
   meta: ^1.2.3
-  bech32: 0.1.2
+  bech32: ^0.2.1
 
 dev_dependencies:
   test: ^1.15.4
+
+dependency_overrides:
+  bip32:
+    git:
+      url: git://github.com/cochainio/bip32-dart
+      ref: master
+  bip39:
+    git:
+      url: git://github.com/cochainio/bip39
+      ref: master
+  pointycastle:
+    git:
+      url: git://github.com/cochainio/pc-dart
+      ref: master

@@ -3,10 +3,7 @@ import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
 
 bool inputCheck(List<dynamic> chunks) {
-  return chunks != null &&
-      chunks.length == 2 &&
-      bscript.isCanonicalScriptSignature(chunks[0]) &&
-      bscript.isCanonicalPubKey(chunks[1]);
+  return chunks.length == 2 && bscript.isCanonicalScriptSignature(chunks[0]) && bscript.isCanonicalPubKey(chunks[1]);
 }
 
 bool outputCheck(Uint8List script) {

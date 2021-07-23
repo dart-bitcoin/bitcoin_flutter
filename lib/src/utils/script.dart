@@ -5,20 +5,25 @@ import 'constants/op.dart';
 import 'push_data.dart' as pushData;
 import 'check_types.dart';
 
-Map<int, String> REVERSE_OPS =
-    OPS.map((String string, int number) => new MapEntry(number, string));
+Map<int, String> REVERSE_OPS = OPS.map((String string, int number) => MapEntry(number, string));
 final OP_INT_BASE = OPS['OP_RESERVED'];
 final ZERO = Uint8List.fromList([0]);
 
 Uint8List compile(List<dynamic> chunks) {
   final bufferSize = chunks.fold(0, (acc, chunk) {
-    if (chunk is int) return acc + 1;
-    if (chunk.length == 1 && asMinimalOP(chunk) != null) {
-      return acc + 1;
+    num _acc = 0;
+    try {
+      _acc = acc as num;
+    } catch (e) {
+      print(e);
     }
-    return acc + pushData.encodingLength(chunk.length) + chunk.length;
+    if (chunk is int) return _acc + 1;
+    if (chunk.length == 1 && asMinimalOP(chunk) != null) {
+      return _acc + 1;
+    }
+    return _acc + pushData.encodingLength(chunk.length) + chunk.length;
   });
-  var buffer = new Uint8List(bufferSize);
+  var buffer = Uint8List(bufferSize.toInt());
 
   var offset = 0;
   chunks.forEach((chunk) {
@@ -31,8 +36,7 @@ Uint8List compile(List<dynamic> chunks) {
         offset += 1;
         return null;
       }
-      pushData.EncodedPushData epd =
-          pushData.encode(buffer, chunk.length, offset);
+      pushData.EncodedPushData epd = pushData.encode(buffer, chunk.length, offset);
       offset += epd.size;
       buffer = epd.buffer;
       buffer.setRange(offset, offset + chunk.length, chunk);
@@ -44,12 +48,11 @@ Uint8List compile(List<dynamic> chunks) {
     }
   });
 
-  if (offset != buffer.length)
-    throw new ArgumentError("Could not decode chunks");
+  if (offset != buffer.length) throw ArgumentError("Could not decode chunks");
   return buffer;
 }
 
-List<dynamic> decompile(dynamic buffer) {
+List<dynamic>? decompile(dynamic buffer) {
   List<dynamic> chunks = [];
 
   if (buffer == null) return chunks;
@@ -98,13 +101,15 @@ Uint8List fromASM(String asm) {
   }).toList());
 }
 
-String toASM(List<dynamic> c) {
-  List<dynamic> chunks;
+String? toASM(List<dynamic> c) {
+  List<dynamic>? chunks;
   if (c is Uint8List) {
     chunks = decompile(c);
   } else {
     chunks = c;
   }
+
+  if (chunks == null) return null;
   return chunks.map((chunk) {
     // data?
     if (chunk is Uint8List) {
@@ -117,11 +122,11 @@ String toASM(List<dynamic> c) {
   }).join(' ');
 }
 
-int asMinimalOP(Uint8List buffer) {
-  if (buffer.length == 0) return OPS['OP_0'];
+int? asMinimalOP(Uint8List buffer) {
+  if (buffer.length == 0) return OPS['OP_0']!;
   if (buffer.length != 1) return null;
-  if (buffer[0] >= 1 && buffer[0] <= 16) return OP_INT_BASE + buffer[0];
-  if (buffer[0] == 0x81) return OPS['OP_1NEGATE'];
+  if (buffer[0] >= 1 && buffer[0] <= 16) return OP_INT_BASE! + buffer[0];
+  if (buffer[0] == 0x81) return OPS['OP_1NEGATE']!;
   return null;
 }
 
@@ -160,26 +165,23 @@ bool bip66check(buffer) {
   if (lenR > 1 && (buffer[4] == 0x00) && buffer[5] & 0x80 == 0) return false;
 
   if (buffer[lenR + 6] & 0x80 != 0) return false;
-  if (lenS > 1 && (buffer[lenR + 6] == 0x00) && buffer[lenR + 7] & 0x80 == 0)
-    return false;
+  if (lenS > 1 && (buffer[lenR + 6] == 0x00) && buffer[lenR + 7] & 0x80 == 0) return false;
   return true;
 }
 
 Uint8List bip66encode(r, s) {
-  var lenR = r.length;
-  var lenS = s.length;
-  if (lenR == 0) throw new ArgumentError('R length is zero');
-  if (lenS == 0) throw new ArgumentError('S length is zero');
-  if (lenR > 33) throw new ArgumentError('R length is too long');
-  if (lenS > 33) throw new ArgumentError('S length is too long');
-  if (r[0] & 0x80 != 0) throw new ArgumentError('R value is negative');
-  if (s[0] & 0x80 != 0) throw new ArgumentError('S value is negative');
-  if (lenR > 1 && (r[0] == 0x00) && r[1] & 0x80 == 0)
-    throw new ArgumentError('R value excessively padded');
-  if (lenS > 1 && (s[0] == 0x00) && s[1] & 0x80 == 0)
-    throw new ArgumentError('S value excessively padded');
+  final int lenR = r.length;
+  final int lenS = s.length;
+  if (lenR == 0) throw ArgumentError('R length is zero');
+  if (lenS == 0) throw ArgumentError('S length is zero');
+  if (lenR > 33) throw ArgumentError('R length is too long');
+  if (lenS > 33) throw ArgumentError('S length is too long');
+  if (r[0] & 0x80 != 0) throw ArgumentError('R value is negative');
+  if (s[0] & 0x80 != 0) throw ArgumentError('S value is negative');
+  if (lenR > 1 && (r[0] == 0x00) && r[1] & 0x80 == 0) throw ArgumentError('R value excessively padded');
+  if (lenS > 1 && (s[0] == 0x00) && s[1] & 0x80 == 0) throw ArgumentError('S value excessively padded');
 
-  var signature = new Uint8List(6 + lenR + lenS);
+  var signature = Uint8List(6 + lenR + lenS);
 
   // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
   signature[0] = 0x30;
@@ -197,10 +199,9 @@ Uint8List encodeSignature(Uint8List signature, int hashType) {
   if (!isUint(hashType, 8)) throw ArgumentError("Invalid hasType $hashType");
   if (signature.length != 64) throw ArgumentError("Invalid signature");
   final hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
-    throw new ArgumentError('Invalid hashType $hashType');
+  if (hashTypeMod <= 0 || hashTypeMod >= 4) throw ArgumentError('Invalid hashType $hashType');
 
-  final hashTypeBuffer = new Uint8List(1);
+  final hashTypeBuffer = Uint8List(1);
   hashTypeBuffer.buffer.asByteData().setUint8(0, hashType);
   final r = toDER(signature.sublist(0, 32));
   final s = toDER(signature.sublist(32, 64));

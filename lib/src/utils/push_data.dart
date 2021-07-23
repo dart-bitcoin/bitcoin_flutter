@@ -5,14 +5,14 @@ class DecodedPushData {
   int opcode;
   int number;
   int size;
-  DecodedPushData({this.opcode, this.number, this.size});
+  DecodedPushData({required this.opcode, required this.number, required this.size});
 }
 
 class EncodedPushData {
   int size;
   Uint8List buffer;
 
-  EncodedPushData({this.size, this.buffer});
+  EncodedPushData({required this.size, required this.buffer});
 }
 
 EncodedPushData encode(Uint8List buffer, number, offset) {
@@ -23,30 +23,30 @@ EncodedPushData encode(Uint8List buffer, number, offset) {
 
     // 8 bit
   } else if (size == 2) {
-    buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA1']);
+    buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA1']!);
     buffer.buffer.asByteData().setUint8(offset + 1, number);
 
     // 16 bit
   } else if (size == 3) {
-    buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA2']);
+    buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA2']!);
     buffer.buffer.asByteData().setUint16(offset + 1, number, Endian.little);
 
     // 32 bit
   } else {
-    buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA4']);
+    buffer.buffer.asByteData().setUint8(offset, OPS['OP_PUSHDATA4']!);
     buffer.buffer.asByteData().setUint32(offset + 1, number, Endian.little);
   }
 
   return new EncodedPushData(size: size, buffer: buffer);
 }
 
-DecodedPushData decode(Uint8List bf, int offset) {
+DecodedPushData? decode(Uint8List bf, int offset) {
   ByteBuffer buffer = bf.buffer;
   int opcode = buffer.asByteData().getUint8(offset);
   int number, size;
 
   // ~6 bit
-  if (opcode < OPS['OP_PUSHDATA1']) {
+  if (opcode < OPS['OP_PUSHDATA1']!) {
     number = opcode;
     size = 1;
 

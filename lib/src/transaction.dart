@@ -276,6 +276,10 @@ class Transaction {
     return (weight() / 4).ceil();
   }
 
+  int get txSize {
+    return virtualSize();
+  }
+
   Uint8List toBuffer([Uint8List? buffer, int? initialOffset]) {
     return this._toBuffer(buffer, initialOffset, true);
   }

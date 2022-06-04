@@ -27,6 +27,24 @@ main() {
           '01000000019d344070eac3fe6e394a16d06d7704a7d5c0a10eb2a2c16bc98842b7cc20d561000000006b48304502210088828c0bdfcdca68d8ae0caeb6ec62cd3fd5f9b2191848edae33feb533df35d302202e0beadd35e17e7f83a733f5277028a9b453d525553e3f5d2d7a7aa8010a81d60121029f50f51d63b345039a290c94bffd3180c99ed659ff6ea6b1242bca47eb93b59fffffffff01e02e0000000000001976a91406afd46bcdfd22ef94ac122aa11f241244a37ecc88ac00000000');
     });
 
+    test('can create an OP_RETURN Transaction', () {
+      final alice = ECPair.fromWIF(
+          'L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy');
+      final txb = new TransactionBuilder();
+
+      txb.setVersion(1);
+      txb.addInput(
+          '61d520ccb74288c96bc1a2b20ea1c0d5a704776dd0164a396efec3ea7040349d',
+          0); // Alice's previous transaction output, has 15000 satoshis
+      txb.addOutputData('Hey this is a random string without Bitcoins');
+
+      txb.sign(vin: 0, keyPair: alice);
+
+      // prepare for broadcast to the Bitcoin network, see 'can broadcast a Transaction' below
+      expect(txb.build().toHex(),
+          '01000000019d344070eac3fe6e394a16d06d7704a7d5c0a10eb2a2c16bc98842b7cc20d561000000006a47304402200852194e22d2b5faf9db66407d769b13278708b77e55df5d9c8638367af4c0870220638083bdaf06d8147ad4bfaddb975a2a4a056cca806a717e956d334c01482b3a0121029f50f51d63b345039a290c94bffd3180c99ed659ff6ea6b1242bca47eb93b59fffffffff0100000000000000002e6a2c486579207468697320697320612072616e646f6d20737472696e6720776974686f757420426974636f696e7300000000');
+    });
+
     test('can create a 2-to-2 Transaction', () {
       final alice = ECPair.fromWIF(
           'L1Knwj9W3qK3qMKdTvmg3VfzUs3ij2LETTFhxza9LfD5dngnoLG1');

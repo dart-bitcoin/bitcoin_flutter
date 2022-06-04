@@ -1,8 +1,7 @@
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:hex/hex.dart';
-import 'package:bs58check/bs58check.dart' as bs58check;
-import 'package:bech32/bech32.dart';
+import 'package:bitcoin_flutter/src/utils/constants/op.dart';
 import 'utils/script.dart' as bscript;
 import 'ecpair.dart';
 import 'models/networks.dart';
@@ -12,6 +11,9 @@ import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart';
 import 'payments/p2wpkh.dart';
 import 'classify.dart';
+import 'dart:convert';
+
+const int MAX_OP_RETURN_SIZE = 100;
 
 class TransactionBuilder {
   NetworkType network;
@@ -26,6 +28,26 @@ class TransactionBuilder {
     this._inputs = [];
     this._tx = new Transaction();
     this._tx.version = 2;
+  }
+
+  
+  int addOutputData(dynamic data) {
+    var scriptPubKey;
+    if (data is String) {
+      if (data.length <= MAX_OP_RETURN_SIZE) {
+        scriptPubKey = bscript.compile([OPS['OP_RETURN'], utf8.encode(data)]);
+      } else {
+        throw new ArgumentError('Too much data embedded, max OP_RETURN size is '+MAX_OP_RETURN_SIZE.toString());
+      }
+    } else if (data is Uint8List) {
+      scriptPubKey = data;
+    } else {
+      throw new ArgumentError('Invalid data');
+    }
+    if (!_canModifyOutputs()) {
+      throw new ArgumentError('No, this would invalidate signatures');
+    }
+    return _tx.addOutput(scriptPubKey, 0);
   }
 
   List<Input> get inputs => _inputs;

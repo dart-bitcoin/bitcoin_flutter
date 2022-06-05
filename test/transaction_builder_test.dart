@@ -259,6 +259,73 @@ main() {
         }
       });
     });
+    group('addOutputData', () {
+      TransactionBuilder txb;
+      String data;
+      String data2;
+      setUp(() {
+        txb = new TransactionBuilder();
+        data = 'Hey this is a random string without Bitcoins.';
+        data2 = 'And this is another string.';
+      });
+      test('accepts a ScriptPubKey', () {
+        final vout = txb.addOutputData(scripts.elementAt(0));
+        expect(vout, 0);
+        final txout = txb.tx.outs[0];
+        expect(txout.script, scripts.elementAt(0));
+        expect(txout.value, 0);
+      });
+      test('throws if too much data is provided', () {
+        try {
+          expect(txb.addOutputData('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+              isArgumentError);
+        } catch (err) {
+          expect((err as ArgumentError).message,
+              'Too much data embedded, max OP_RETURN size is 100');
+        }
+      });
+      test('add second output after signed first input with SIGHASH_NONE', () {
+        txb.addInput(txHash, 0);
+        txb.addOutputData(data);
+        txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_NONE);
+        expect(txb.addOutputData(data2), 1);
+      });
+      test('add first output after signed first input with SIGHASH_NONE', () {
+        txb.addInput(txHash, 0);
+        txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_NONE);
+        expect(txb.addOutputData(data), 0);
+      });
+      test('add second output after signed first input with SIGHASH_SINGLE',
+              () {
+            txb.addInput(txHash, 0);
+            txb.addOutputData(data);
+            txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_SINGLE);
+            expect(txb.addOutputData(data2), 1);
+          });
+      test('add first output after signed first input with SIGHASH_SINGLE', () {
+        txb.addInput(txHash, 0);
+        txb.sign(vin: 0, keyPair: keyPair, hashType: SIGHASH_SINGLE);
+        try {
+          expect(txb.addOutputData(data), isArgumentError);
+        } catch (err) {
+          expect((err as ArgumentError).message,
+              'No, this would invalidate signatures');
+        }
+      });
+      test(
+          'throws if SIGHASH_ALL has been used to sign any existing scriptSigs',
+              () {
+            txb.addInput(txHash, 0);
+            txb.addOutputData(data);
+            txb.sign(vin: 0, keyPair: keyPair);
+            try {
+              expect(txb.addOutputData(data2), isArgumentError);
+            } catch (err) {
+              expect((err as ArgumentError).message,
+                  'No, this would invalidate signatures');
+            }
+          });
+    });
     group('setLockTime', () {
       test('throws if if there exist any scriptSigs', () {
         final txb = new TransactionBuilder();

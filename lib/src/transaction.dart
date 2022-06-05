@@ -571,7 +571,7 @@ class Input {
 
   factory Input.expandInput(Uint8List scriptSig, List<Uint8List> witness,
       [String type, Uint8List scriptPubKey]) {
-    if (type == null || type == '') {
+    if (type == null) {
       var ssType = classifyInput(scriptSig);
       var wsType = classifyWitness(witness);
       if (ssType == SCRIPT_TYPES['NONSTANDARD']) ssType = null;
@@ -599,6 +599,10 @@ class Input {
           pubkeys: [],
           signatures: [p2pk.data.signature]);
     }
+    return Input(
+      prevOutType: SCRIPT_TYPES['NONSTANDARD'],
+      prevOutScript: scriptSig,
+    );
   }
 
   factory Input.clone(Input input) {

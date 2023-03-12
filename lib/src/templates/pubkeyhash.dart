@@ -10,7 +10,7 @@ bool inputCheck(List<dynamic> chunks) {
 }
 
 bool outputCheck(Uint8List script) {
-  final buffer = bscript.compile(script);
+  final buffer = bscript.compile(script)!;
   return buffer.length == 25 &&
       buffer[0] == OPS['OP_DUP'] &&
       buffer[1] == OPS['OP_HASH160'] &&

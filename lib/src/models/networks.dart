@@ -2,19 +2,19 @@ import 'package:meta/meta.dart';
 
 class NetworkType {
   String messagePrefix;
-  String bech32;
+  String? bech32;
   Bip32Type bip32;
   int pubKeyHash;
   int scriptHash;
   int wif;
 
   NetworkType(
-      {@required this.messagePrefix,
+      {required this.messagePrefix,
       this.bech32,
-      @required this.bip32,
-      @required this.pubKeyHash,
-      @required this.scriptHash,
-      @required this.wif});
+      required this.bip32,
+      required this.pubKeyHash,
+      required this.scriptHash,
+      required this.wif});
 
   @override
   String toString() {
@@ -26,7 +26,7 @@ class Bip32Type {
   int public;
   int private;
 
-  Bip32Type({@required this.public, @required this.private});
+  Bip32Type({required this.public, required this.private});
 
   @override
   String toString() {

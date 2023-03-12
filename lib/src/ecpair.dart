@@ -5,39 +5,39 @@ import 'package:bip32/src/utils/wif.dart' as wif;
 import 'models/networks.dart';
 
 class ECPair {
-  Uint8List _d;
-  Uint8List _Q;
-  NetworkType network;
-  bool compressed;
-  ECPair(Uint8List _d, Uint8List _Q, {network, compressed}) {
+  Uint8List? _d;
+  Uint8List? _Q;
+  NetworkType? network;
+  bool? compressed;
+  ECPair(Uint8List? _d, Uint8List? _Q, {network, compressed}) {
     this._d = _d;
     this._Q = _Q;
     this.network = network ?? bitcoin;
     this.compressed = compressed ?? true;
   }
-  Uint8List get publicKey {
-    if (_Q == null) _Q = ecc.pointFromScalar(_d, compressed);
+  Uint8List? get publicKey {
+    if (_Q == null) _Q = ecc.pointFromScalar(_d!, compressed!);
     return _Q;
   }
 
-  Uint8List get privateKey => _d;
+  Uint8List? get privateKey => _d;
   String toWIF() {
     if (privateKey == null) {
       throw new ArgumentError('Missing private key');
     }
     return wif.encode(new wif.WIF(
-        version: network.wif, privateKey: privateKey, compressed: compressed));
+        version: network!.wif, privateKey: privateKey!, compressed: compressed!));
   }
 
   Uint8List sign(Uint8List hash) {
-    return ecc.sign(hash, privateKey);
+    return ecc.sign(hash, privateKey!);
   }
 
   bool verify(Uint8List hash, Uint8List signature) {
-    return ecc.verify(hash, publicKey, signature);
+    return ecc.verify(hash, publicKey!, signature);
   }
 
-  factory ECPair.fromWIF(String w, {NetworkType network}) {
+  factory ECPair.fromWIF(String w, {NetworkType? network}) {
     wif.WIF decoded = wif.decode(w);
     final version = decoded.version;
     // TODO support multi networks
@@ -58,7 +58,7 @@ class ECPair {
         compressed: decoded.compressed, network: nw);
   }
   factory ECPair.fromPublicKey(Uint8List publicKey,
-      {NetworkType network, bool compressed}) {
+      {NetworkType? network, bool? compressed}) {
     if (!ecc.isPoint(publicKey)) {
       throw new ArgumentError('Point is not on the curve');
     }
@@ -66,7 +66,7 @@ class ECPair {
         network: network, compressed: compressed);
   }
   factory ECPair.fromPrivateKey(Uint8List privateKey,
-      {NetworkType network, bool compressed}) {
+      {NetworkType? network, bool? compressed}) {
     if (privateKey.length != 32)
       throw new ArgumentError(
           'Expected property privateKey of type Buffer(Length: 32)');
@@ -76,13 +76,13 @@ class ECPair {
         network: network, compressed: compressed);
   }
   factory ECPair.makeRandom(
-      {NetworkType network, bool compressed, Function rng}) {
+      {NetworkType? network, bool? compressed, Function? rng}) {
     final rfunc = rng ?? _randomBytes;
-    Uint8List d;
+    Uint8List? d;
 //    int beginTime = DateTime.now().millisecondsSinceEpoch;
     do {
       d = rfunc(32);
-      if (d.length != 32) throw ArgumentError('Expected Buffer(Length: 32)');
+      if (d!.length != 32) throw ArgumentError('Expected Buffer(Length: 32)');
 //      if (DateTime.now().millisecondsSinceEpoch - beginTime > 5000) throw ArgumentError('Timeout');
     } while (!ecc.isPrivate(d));
     return ECPair.fromPrivateKey(d, network: network, compressed: compressed);

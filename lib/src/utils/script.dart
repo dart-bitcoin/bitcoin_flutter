@@ -10,6 +10,21 @@ Map<int, String> REVERSE_OPS =
 final OP_INT_BASE = OPS['OP_RESERVED'];
 final ZERO = Uint8List.fromList([0]);
 
+bool isOPInt(dynamic value) {
+  return (value is num &&
+      (value == OPS['OP_0'] ||
+          (value >= OPS['OP_1']! && value <= OPS['OP_16']!) ||
+          value == OPS['OP_1NEGATE']));
+}
+
+bool isPushOnlyChunk(dynamic value) {
+  return (value is Uint8List) || isOPInt(value);
+}
+
+bool isPushOnly(dynamic value) {
+  return (value is List) && value.every(isPushOnlyChunk);
+}
+
 Uint8List? compile(List<dynamic> chunks) {
   final bufferSize = chunks.fold(0, (dynamic acc, chunk) {
     if (chunk is int) return acc + 1;

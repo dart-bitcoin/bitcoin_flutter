@@ -31,7 +31,7 @@ class Address {
     if (decodeBase58 != null) {
       if (decodeBase58[0] == network.pubKeyHash) {
         return P2PKH(data: PaymentData(address: address), network: network)
-            .data!
+            .data
             .output;
       }
       if (decodeBase58[0] == network.scriptHash) {

@@ -107,7 +107,9 @@ class TransactionBuilder {
       if (data.length <= MAX_OP_RETURN_SIZE) {
         scriptPubKey = bscript.compile([OPS['OP_RETURN'], utf8.encode(data)]);
       } else {
-        throw new ArgumentError('Too much data embedded, max OP_RETURN size is '+MAX_OP_RETURN_SIZE.toString());
+        throw new ArgumentError(
+            'Too much data embedded, max OP_RETURN size is ' +
+                MAX_OP_RETURN_SIZE.toString());
       }
     } else if (data is Uint8List) {
       scriptPubKey = data;
@@ -265,8 +267,8 @@ class TransactionBuilder {
                   pubkey: _inputs![i].pubkeys![0],
                   signature: _inputs![i].signatures![0]),
               network: network);
-          tx.setInputScript(i, payment.data.input);
-          tx.setWitness(i, payment.data.witness);
+          tx.setInputScript(i, payment.data!.input);
+          tx.setWitness(i, payment.data!.witness);
         }
       } else if (!allowIncomplete) {
         throw new ArgumentError('Transaction is not complete');

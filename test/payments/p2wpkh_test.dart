@@ -17,25 +17,25 @@ main() {
         final arguments = _preformPaymentData(f['arguments']);
         final p2wpkh = new P2WPKH(data: arguments);
         if (arguments.address == null) {
-          expect(p2wpkh.data.address, f['expected']['address']);
+          expect(p2wpkh.data!.address, f['expected']['address']);
         }
         if (arguments.hash == null) {
-          expect(_toString(p2wpkh.data.hash), f['expected']['hash']);
+          expect(_toString(p2wpkh.data!.hash), f['expected']['hash']);
         }
         if (arguments.pubkey == null) {
-          expect(_toString(p2wpkh.data.pubkey), f['expected']['pubkey']);
+          expect(_toString(p2wpkh.data!.pubkey), f['expected']['pubkey']);
         }
         if (arguments.input == null) {
-          expect(_toString(p2wpkh.data.input), f['expected']['input']);
+          expect(_toString(p2wpkh.data!.input), f['expected']['input']);
         }
         if (arguments.output == null) {
-          expect(_toString(p2wpkh.data.output), f['expected']['output']);
+          expect(_toString(p2wpkh.data!.output), f['expected']['output']);
         }
         if (arguments.signature == null) {
-          expect(_toString(p2wpkh.data.signature), f['expected']['signature']);
+          expect(_toString(p2wpkh.data!.signature), f['expected']['signature']);
         }
         if (arguments.witness == null) {
-          expect(_toString(p2wpkh.data.witness), f['expected']['witness']);
+          expect(_toString(p2wpkh.data!.witness), f['expected']['witness']);
         }
       });
     });

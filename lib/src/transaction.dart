@@ -585,10 +585,10 @@ class Input {
     if (type == SCRIPT_TYPES['P2WPKH']) {
       P2WPKH p2wpkh = new P2WPKH(data: new PaymentData(witness: witness));
       return new Input(
-          prevOutScript: p2wpkh.data.output,
+          prevOutScript: p2wpkh.data!.output,
           prevOutType: SCRIPT_TYPES['P2WPKH'],
-          pubkeys: [p2wpkh.data.pubkey],
-          signatures: [p2wpkh.data.signature]);
+          pubkeys: [p2wpkh.data!.pubkey],
+          signatures: [p2wpkh.data!.signature]);
     } else if (type == SCRIPT_TYPES['P2PKH']) {
       P2PKH p2pkh = new P2PKH(data: new PaymentData(input: scriptSig));
       return new Input(
@@ -657,7 +657,7 @@ class Output {
     var type = classifyOutput(script!);
     if (type == SCRIPT_TYPES['P2WPKH']) {
       Uint8List? wpkh1 =
-          new P2WPKH(data: new PaymentData(output: script)).data.hash;
+          new P2WPKH(data: new PaymentData(output: script)).data!.hash;
       Uint8List wpkh2 = bcrypto.hash160(ourPubKey);
       if (wpkh1 != wpkh2) throw ArgumentError('Hash mismatch!');
       return new Output(pubkeys: [ourPubKey], signatures: [null]);

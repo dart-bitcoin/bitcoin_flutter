@@ -15,6 +15,7 @@ dependencies:
   bech32: 0.2.1
   collection: ^1.15.0-nullsafety.4
   defichain_bech32: ^0.1.0
+  bip32_defichain: ^3.0.1+1
 
 dev_dependencies:
   test: ^1.21.1

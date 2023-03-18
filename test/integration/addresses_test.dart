@@ -78,7 +78,7 @@ main() {
       final address =
           new P2WPKH(data: new PaymentData(pubkey: keyPair.publicKey))
               .data
-              .address;
+              !.address;
       expect(address, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4');
     });
     test('can generate a SegWit testnet address', () {
@@ -89,7 +89,7 @@ main() {
               data: new PaymentData(pubkey: keyPair.publicKey),
               network: testnet)
           .data
-          .address;
+          !.address;
       expect(address, 'tb1qgmp0h7lvexdxx9y05pmdukx09xcteu9sx2h4ya');
     });
   });

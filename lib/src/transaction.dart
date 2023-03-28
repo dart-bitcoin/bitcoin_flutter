@@ -21,7 +21,7 @@ const SIGHASH_ANYONECANPAY = 0x80;
 const ADVANCED_TRANSACTION_MARKER = 0x00;
 const ADVANCED_TRANSACTION_FLAG = 0x01;
 final EMPTY_SCRIPT = Uint8List.fromList([]);
-final List<Uint8List?>? EMPTY_WITNESS = [];
+final EMPTY_WITNESS = <Uint8List>[];
 final ZERO = HEX
     .decode('0000000000000000000000000000000000000000000000000000000000000000');
 final ONE = HEX
@@ -59,7 +59,7 @@ class Transaction {
 
   bool hasWitnesses() {
     var witness = ins.firstWhereOrNull(
-        (input) => input.witness != null && input.witness!.length != 0);
+        (input) => input.witness != null && input.witness!.isNotEmpty);
     return witness != null;
   }
 
@@ -153,23 +153,36 @@ class Transaction {
     if ((hashType & 0x1f) != SIGHASH_SINGLE &&
         (hashType & 0x1f) != SIGHASH_NONE) {
       var txOutsSize = outs.fold(
-          0, (dynamic sum, output) => sum + 8 + varSliceSize(output.script!));
+          0,
+          (dynamic sum, output) =>
+              sum +
+              (this.version! > MIN_VERSION_NO_TOKENS ? 1 : 0) +
+              8 +
+              varSliceSize(output.script!));
       tbuffer = new Uint8List(txOutsSize);
       bytes = tbuffer.buffer.asByteData();
       toffset = 0;
       outs.forEach((txOut) {
         writeUInt64(txOut.value);
         writeVarSlice(txOut.script);
+        if (version! > MIN_VERSION_NO_TOKENS) {
+          writeVarInt(txOut.tokenId);
+        }
       });
       hashOutputs = bcrypto.hash256(tbuffer);
     } else if ((hashType & 0x1f) == SIGHASH_SINGLE && inIndex < outs.length) {
       // SIGHASH_SINGLE only hash that according output
       var output = outs[inIndex];
-      tbuffer = new Uint8List(8 + varSliceSize(output.script!));
+      tbuffer = new Uint8List(8 +
+          (this.version! > MIN_VERSION_NO_TOKENS ? 1 : 0) +
+          varSliceSize(output.script!));
       bytes = tbuffer.buffer.asByteData();
       toffset = 0;
       writeUInt64(output.value);
       writeVarSlice(output.script);
+      if (version! > MIN_VERSION_NO_TOKENS) {
+        writeVarInt(output.tokenId);
+      }
       hashOutputs = bcrypto.hash256(tbuffer);
     }
 

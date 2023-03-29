@@ -170,6 +170,7 @@ class TransactionBuilder {
     }
     final input = _inputs![vin];
     final ourPubKey = keyPair.publicKey;
+    // if redeemScript was previously provided, enforce consistency
     if (input.redeemScript != null &&
         redeemScript != null &&
         input.redeemScript.toString() != redeemScript.toString()) {
@@ -235,21 +236,21 @@ class TransactionBuilder {
           input.hasWitness = true;
           input.signatures = [null];
           input.pubkeys = [ourPubKey];
-          input.signScript = new P2PKH(
-                  data: new PaymentData(pubkey: ourPubKey),
-                  network: this.network)
-              .data
-              .output;
-        } else {
-          // DRY CODE
-          Uint8List? prevOutScript = pubkeyToOutputScript(ourPubKey);
+          input.signScript =
+              P2PKH(data: PaymentData(pubkey: ourPubKey), network: network)
+                  .data!
+                  .output;
+        } else if (type == SCRIPT_TYPES['P2PKH']) {
+          var prevOutScript = pubkeyToOutputScript(ourPubKey);
           input.prevOutType = SCRIPT_TYPES['P2PKH'];
           input.signatures = [null];
           input.pubkeys = [ourPubKey];
           input.signScript = prevOutScript;
+        } else {
+          // TODO other type
         }
       } else {
-        Uint8List? prevOutScript = pubkeyToOutputScript(ourPubKey);
+        var prevOutScript = pubkeyToOutputScript(ourPubKey);
         input.prevOutType = SCRIPT_TYPES['P2PKH'];
         input.signatures = [null];
         input.pubkeys = [ourPubKey];
@@ -269,8 +270,9 @@ class TransactionBuilder {
     for (var i = 0; i < input.pubkeys!.length; i++) {
       if (HEX.encode(ourPubKey!).compareTo(HEX.encode(input.pubkeys![i]!)) != 0)
         continue;
-      if (input.signatures![i] != null)
+      if (input.signatures![i] != null) {
         throw new ArgumentError('Signature already exists');
+      }
       final signature = keyPair.sign(signatureHash);
       input.signatures![i] = bscript.encodeSignature(signature, hashType);
       signed = true;
@@ -320,30 +322,6 @@ class TransactionBuilder {
       } else if (!allowIncomplete) {
         throw ArgumentError('Transaction is not complete');
       }
-      // if (_inputs![i].pubkeys != null &&
-      //     _inputs![i].signatures != null &&
-      //     _inputs![i].pubkeys!.length != 0 &&
-      //     _inputs![i].signatures!.length != 0) {
-      //   if (_inputs![i].prevOutType == SCRIPT_TYPES['P2PKH']) {
-      //     P2PKH payment = new P2PKH(
-      //         data: new PaymentData(
-      //             pubkey: _inputs![i].pubkeys![0],
-      //             signature: _inputs![i].signatures![0]),
-      //         network: network);
-      //     tx.setInputScript(i, payment.data.input);
-      //     tx.setWitness(i, payment.data.witness);
-      //   } else if (_inputs![i].prevOutType == SCRIPT_TYPES['P2WPKH']) {
-      //     P2WPKH payment = new P2WPKH(
-      //         data: new PaymentData(
-      //             pubkey: _inputs![i].pubkeys![0],
-      //             signature: _inputs![i].signatures![0]),
-      //         network: network);
-      //     tx.setInputScript(i, payment.data!.input);
-      //     tx.setWitness(i, payment.data!.witness);
-      //   }
-      // } else if (!allowIncomplete) {
-      //   throw new ArgumentError('Transaction is not complete');
-      // }
     }
 
     if (!allowIncomplete) {
@@ -434,7 +412,7 @@ class TransactionBuilder {
       throw new ArgumentError('Duplicate TxOut: ' + prevTxOut);
     if (options.script != null) {
       input =
-          Input.expandInput(options.script, options.witness ?? EMPTY_WITNESS!);
+          Input.expandInput(options.script!, options.witness ?? EMPTY_WITNESS!);
     } else {
       input = new Input();
     }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:bitcoin_flutter/src/utils/constants/op.dart';
-import 'package:meta/meta.dart';
 import 'package:hex/hex.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:bech32/bech32.dart';

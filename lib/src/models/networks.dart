@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class NetworkType {
   String messagePrefix;
   String? bech32;

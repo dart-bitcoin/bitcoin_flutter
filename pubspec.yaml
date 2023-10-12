@@ -12,8 +12,8 @@ dependencies:
   bip32: ^2.0.0
   pointycastle: ^3.6.0
   hex: ^0.2.0
-  bs58check: ^1.0.2
-  bech32: 0.2.1
+  # bs58check: ^1.0.2
+  # bech32: 0.2.1
   collection: ^1.15.0-nullsafety.4
   defichain_bech32:
     git:

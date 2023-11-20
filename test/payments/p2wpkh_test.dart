@@ -17,25 +17,25 @@ main() {
         final arguments = _preformPaymentData(f['arguments']);
         final p2wpkh = new P2WPKH(data: arguments);
         if (arguments.address == null) {
-          expect(p2wpkh.data.address, f['expected']['address']);
+          expect(p2wpkh.data!.address, f['expected']['address']);
         }
         if (arguments.hash == null) {
-          expect(_toString(p2wpkh.data.hash), f['expected']['hash']);
+          expect(_toString(p2wpkh.data!.hash), f['expected']['hash']);
         }
         if (arguments.pubkey == null) {
-          expect(_toString(p2wpkh.data.pubkey), f['expected']['pubkey']);
+          expect(_toString(p2wpkh.data!.pubkey), f['expected']['pubkey']);
         }
         if (arguments.input == null) {
-          expect(_toString(p2wpkh.data.input), f['expected']['input']);
+          expect(_toString(p2wpkh.data!.input), f['expected']['input']);
         }
         if (arguments.output == null) {
-          expect(_toString(p2wpkh.data.output), f['expected']['output']);
+          expect(_toString(p2wpkh.data!.output), f['expected']['output']);
         }
         if (arguments.signature == null) {
-          expect(_toString(p2wpkh.data.signature), f['expected']['signature']);
+          expect(_toString(p2wpkh.data!.signature), f['expected']['signature']);
         }
         if (arguments.witness == null) {
-          expect(_toString(p2wpkh.data.witness), f['expected']['witness']);
+          expect(_toString(p2wpkh.data!.witness), f['expected']['witness']);
         }
       });
     });
@@ -64,10 +64,10 @@ PaymentData _preformPaymentData(dynamic x) {
   final output    = x['output'] != null ? bscript.fromASM(x['output']) : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
   final pubkey    = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
-  return new PaymentData(address: address, hash: hash, input: input, output: output, pubkey: pubkey, signature: signature, witness: witness);
+  return new PaymentData(address: address, hash: hash as Uint8List?, input: input, output: output as Uint8List?, pubkey: pubkey as Uint8List?, signature: signature as Uint8List?, witness: witness);
 }
 
-String _toString(dynamic x) {
+String? _toString(dynamic x) {
   if (x == null) {
     return null;
   }

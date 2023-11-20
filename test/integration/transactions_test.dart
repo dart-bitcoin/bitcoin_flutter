@@ -92,7 +92,7 @@ main() {
           0,
           null,
           p2wpkh
-              .output); // Alice's previous transaction output, has 200000 satoshis
+              !.output); // Alice's previous transaction output, has 200000 satoshis
       txb.addOutput('tb1qchsmnkk5c8wsjg8vxecmsntynpmkxme0yvh2yt', 1000000);
       txb.addOutput('tb1qn40fftdp6z2lvzmsz4s0gyks3gq86y2e8svgap', 8995000);
 

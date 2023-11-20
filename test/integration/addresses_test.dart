@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../lib/src/models/networks.dart' as NETWORKS;
 import '../../lib/src/ecpair.dart' show ECPair;
 import '../../lib/src/payments/index.dart' show PaymentData;
@@ -30,7 +32,7 @@ main() {
     });
     test('can generate an address from a SHA256 hash', () {
       final hash = new SHA256Digest()
-          .process(utf8.encode('correct horse battery staple'));
+          .process(utf8.encode('correct horse battery staple') as Uint8List);
       final keyPair = ECPair.fromPrivateKey(hash);
       final address =
           new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey))
@@ -76,7 +78,7 @@ main() {
       final address =
           new P2WPKH(data: new PaymentData(pubkey: keyPair.publicKey))
               .data
-              .address;
+              !.address;
       expect(address, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4');
     });
     test('can generate a SegWit testnet address', () {
@@ -87,7 +89,7 @@ main() {
               data: new PaymentData(pubkey: keyPair.publicKey),
               network: testnet)
           .data
-          .address;
+          !.address;
       expect(address, 'tb1qgmp0h7lvexdxx9y05pmdukx09xcteu9sx2h4ya');
     });
   });

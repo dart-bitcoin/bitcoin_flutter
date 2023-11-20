@@ -2,23 +2,30 @@ name: bitcoin_flutter
 description: A dart Bitcoin library for Flutter. BIP32, BIP39, P2PKH integration.
 version: 2.0.2
 homepage: https://github.com/anicdh
+publish_to: none
 
 environment:
-  sdk: ">=2.3.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   bip39: ^1.0.6
   bip32: ^2.0.0
   pointycastle: ^3.6.0
   hex: ^0.2.0
-  bs58check: ^1.0.2
-  bech32: 0.2.1
+  # bs58check: ^1.0.2
+  # bech32: 0.2.1
+  collection: ^1.15.0-nullsafety.4
+  defichain_bech32:
+    git:
+      url: https://github.com/ArunBabu98/defichain_bech32
+      ref: dart3
+  bip32_defichain: ^3.0.1+1
 
 dev_dependencies:
   test: ^1.21.1
 
 dependency_overrides:
   analyzer: 4.1.0
-  convert: ^3.0.0
+  convert: ^3.1.1
   crypto: ^3.0.0
   hex: ^0.2.0

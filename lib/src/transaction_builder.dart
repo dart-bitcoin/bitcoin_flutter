@@ -325,9 +325,9 @@ class TransactionBuilder {
 
     if (!allowIncomplete) {
       // do not rely on this, its merely a last resort
-      if (_overMaximumFees(tx.virtualSize())) {
-        throw new ArgumentError('Transaction has absurd fees');
-      }
+      // if (_overMaximumFees(tx.virtualSize())) {
+      //   throw new ArgumentError('Transaction has absurd fees');
+      // }
     }
 
     return tx;
